@@ -1,0 +1,49 @@
+/* Морская тематика */
+.wave-divider {
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+    background: linear-gradient(135deg, #0d6efd 0%, #20c997 100%);
+}
+
+.wave-divider svg {
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 80px;
+}
+
+.shape-fill {
+    fill: #f8f9fa;
+}
+
+/* Карточки с эффектом волны */
+.card {
+    transition: transform 0.3s ease;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(13, 110, 253, 0.2);
+}
+
+/* Кнопки с морской тематикой */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+/* Иконки в таблице */
+.table th i {
+    opacity: 0.7;
+}
