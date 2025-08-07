@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.utils import timezone
+from django import forms
 
 from Tracker.models import Workout, Exercise, Set
 
@@ -8,7 +9,7 @@ from Tracker.models import Workout, Exercise, Set
 class WorkoutForm(ModelForm):
     class Meta:
         model = Workout
-        fields = ["date", "comment"]
+        fields = ["comment"]
 
     def clean_date(self):
         date = self.cleaned_date["date"]
@@ -26,7 +27,7 @@ class ExerciseForm(ModelForm):
 class SetForm(ModelForm):
     class Meta:
         model = Set
-        fields = ['weight', 'reps', 'rest_after_set']
+        fields = ['weight', 'reps', 'exercise']
 
     def clean_weight(self):
         weight = self.cleaned_data["weight"]

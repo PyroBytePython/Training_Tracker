@@ -1,0 +1,30 @@
+{% extends "Tracker/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-list-check me-2"></i>Мои тренировки</h2>
+        <a href="{% url 'tracker:workout_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Новая
+        </a>
+    </div>
+
+    <div class="list-group">
+        {% for workout in workouts %}
+        <a href="{% url 'tracker:workout_detail' workout.pk %}" class="list-group-item list-group-item-action">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">Тренировка #{{ workout.pk }}</h5>
+                <small>{{ workout.date|date:"d.m.Y H:i" }}</small>
+            </div>
+            {% if workout.comment %}
+            <p class="mb-1">{{ workout.comment }}</p>
+            {% endif %}
+        </a>
+        {% empty %}
+        <div class="alert alert-info">
+            У вас пока нет тренировок. Создайте первую!
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
