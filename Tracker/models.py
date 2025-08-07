@@ -1,4 +1,6 @@
 from django.db import models
+
+from users.models import User
 from .validators import validate_weight, validate_reps
 
 
@@ -18,6 +20,11 @@ class Workout(models.Model):
         blank=True,
         verbose_name="Комментарий",
         help_text="Заметки о тренировки",
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='workouts'
     )
 
     class Meta:
