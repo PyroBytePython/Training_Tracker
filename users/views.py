@@ -54,7 +54,7 @@ class VerifyView(View):
                 del request.session['verify_user_id']
                 login(request, user)
                 messages.success(request, 'Email успешно подтвержден!')
-                return redirect('tracker:workout_list')
+                return redirect('tracker:menu')
 
         except (User.DoesNotExist, VerificationCode.DoesNotExist):
             pass

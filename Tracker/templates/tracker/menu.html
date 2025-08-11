@@ -1,0 +1,127 @@
+{% extends "Tracker/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h2 class="mb-4">Добро пожаловать, {{ user.username }}!</h2>
+            <p class="lead mb-5">Выберите раздел для работы:</p>
+
+            <div class="row g-4">
+                <!-- Кнопка 1 - Тренировки -->
+                <div class="col-md-4">
+                    <a href="{% url 'tracker:workout_list' %}"
+                       class="card feature-card-neo card-indigo h-100 text-decoration-none">
+                        <div class="card-body p-4 text-center">
+                            <div class="neo-icon text-white mb-3 p-3">
+                                <i class="bi bi-activity fs-1"></i>
+                            </div>
+                            <h3 class="card-title h4 text-white">Тренировки</h3>
+                            <p class="card-text text-white-50">Управление вашими тренировками и упражнениями</p>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Кнопка 2 - Календарь -->
+                <div class="col-md-4">
+                    <div class="card feature-card-neo card-orange h-100" onclick="showComingSoon()"
+                         style="cursor: pointer;">
+                        <div class="card-body p-4 text-center">
+                            <div class="neo-icon text-white mb-3 p-3">
+                                <i class="bi bi-calendar fs-1"></i>
+                            </div>
+                            <h3 class="card-title h4 text-white">Календарь</h3>
+                            <p class="card-text text-white-50">Планирование тренировок и просмотр истории</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Кнопка 3 - Калории -->
+                <div class="col-md-4">
+                    <div class="card feature-card-neo card-green h-100" onclick="showComingSoon()"
+                         style="cursor: pointer;">
+                        <div class="card-body p-4 text-center">
+                            <div class="neo-icon text-white mb-3 p-3">
+                                <i class="bi bi-nutrition fs-1"></i>
+                            </div>
+                            <h3 class="card-title h4 text-white">Подсчет калорий</h3>
+                            <p class="card-text text-white-50">Учет питания и расчет калорийности</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+/* Общая неоморфная карточка */
+.feature-card-neo {
+    border-radius: 1rem;
+    border: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+.feature-card-neo:hover {
+    transform: translateY(-4px);
+}
+
+/* Иконка */
+.neo-icon {
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.feature-card-neo:hover .neo-icon {
+    transform: scale(1.05);
+}
+
+/* Мягкие цвета */
+.card-indigo {
+    background: #8fa8ff; /* пастельный индиго */
+    box-shadow: 8px 8px 16px rgba(80, 100, 180, 0.4),
+                -8px -8px 16px rgba(255, 255, 255, 0.6);
+}
+.card-indigo .neo-icon {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: inset 4px 4px 8px rgba(80, 100, 180, 0.4),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+}
+
+.card-orange {
+    background: #ffb799; /* пастельный оранжевый */
+    box-shadow: 8px 8px 16px rgba(160, 80, 50, 0.35),
+                -8px -8px 16px rgba(255, 255, 255, 0.6);
+}
+.card-orange .neo-icon {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: inset 4px 4px 8px rgba(160, 80, 50, 0.35),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+}
+
+.card-green {
+    background: #8ef0b0; /* пастельный зелёный */
+    box-shadow: 8px 8px 16px rgba(40, 110, 60, 0.35),
+                -8px -8px 16px rgba(255, 255, 255, 0.6);
+}
+.card-green .neo-icon {
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: inset 4px 4px 8px rgba(40, 110, 60, 0.35),
+                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+}
+
+/* Текст */
+.feature-card-neo h3,
+.feature-card-neo p {
+    color: #fff;
+}
+</style>
+<script>
+    function showComingSoon() {
+        alert('Этот раздел находится в разработке и будет доступен в ближайшее время!');
+    }
+</script>
+{% endblock %}

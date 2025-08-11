@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    HomeView,
+    MenuView,
     WorkoutListView,
     WorkoutCreateView,
     WorkoutDetailView,
@@ -13,7 +13,7 @@ from .views import (
 app_name = 'Tracker'
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
+    path('', MenuView.as_view(), name='menu'),
 
     # Workout routes
     path('workouts/', WorkoutListView.as_view(), name='workout_list'),

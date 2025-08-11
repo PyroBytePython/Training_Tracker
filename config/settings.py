@@ -139,3 +139,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SERVER_EMAIL = os.getenv('SERVER_EMAIL')
+
+LOGIN_REDIRECT_URL = 'Tracker:menu'
+LOGOUT_REDIRECT_URL = 'root'  # После выхода - на главную
+LOGIN_URL = 'users:login'  # Для @login_required

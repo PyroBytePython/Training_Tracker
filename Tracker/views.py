@@ -17,7 +17,7 @@ class HomeView(TemplateView):
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('tracker:workout_list')
+            return redirect('tracker:menu')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -106,3 +106,7 @@ class SetCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         exercise = Exercise.objects.select_related('workout').get(id=self.kwargs['exercise_id'])
         return reverse('tracker:workout_detail', kwargs={'pk': exercise.workout.id})
+
+
+class MenuView(LoginRequiredMixin, TemplateView):
+    template_name = 'tracker/menu.html'

@@ -114,7 +114,13 @@
                     <a class="nav-link disabled" href="#" title="В разработке">Калории</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'users:profile' %}">Профиль</a>
+                    <form method="post" action="{% url 'users:logout' %}" class="d-inline m-0 p-0">
+                        {% csrf_token %}
+                        <button type="submit" class="nav-link p-0"
+                                style="background: none; border: none; cursor: pointer;">
+                            <i class="bi bi-box-arrow-right"></i> Выйти
+                        </button>
+                    </form>
                 </li>
                 {% else %}
                 <li class="nav-item">

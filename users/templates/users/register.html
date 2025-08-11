@@ -1,81 +1,128 @@
 {% extends "Tracker/base.html" %}
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card shadow-sm col-12 col-md-8 col-lg-6">
+<div class="container d-flex justify-content-center align-items-center login-page">
+    <div class="card login-card col-12 col-md-8 col-lg-6">
         <div class="card-body p-4">
-            <h2 class="text-center mb-4">Регистрация в Tracker</h2>
+            <h2 class="text-center mb-4">Регистрация в <span>Tracker</span></h2>
+
             {% if form.errors %}
             <div class="alert alert-danger alert-dismissible fade show">
                 {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                {{ error }}<br>
-                {% endfor %}
+                    {% for error in errors %}
+                        {{ error }}<br>
+                    {% endfor %}
                 {% endfor %}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
             {% endif %}
-            <form method="post" class="needs-validation" novalidate>
+
+            <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="mb-3">
                     <label for="id_username" class="form-label">Логин</label>
-                    <input type="text" name="username" class="form-control" id="id_username" required>
-                    <div class="invalid-feedback">Введите имя пользователя</div>
+                    <input type="text" name="username" class="form-control" id="id_username" placeholder="Введите логин">
                 </div>
                 <div class="mb-3">
                     <label for="id_email" class="form-label">Email</label>
-                    <input type="email" name="email" class="form-control" id="id_email" required>
-                    <div class="invalid-feedback">Введите корректный email</div>
+                    <input type="email" name="email" class="form-control" id="id_email" placeholder="Введите email">
                 </div>
                 <div class="mb-3">
                     <label for="id_password1" class="form-label">Пароль</label>
-                    <input type="password" name="password1" class="form-control" id="id_password1" required>
-                    <div class="invalid-feedback">Введите пароль</div>
+                    <input type="password" name="password1" class="form-control" id="id_password1" placeholder="Введите пароль">
                 </div>
                 <div class="mb-3">
                     <label for="id_password2" class="form-label">Подтвердите пароль</label>
-                    <input type="password" name="password2" class="form-control" id="id_password2" required>
-                    <div class="invalid-feedback">Пароли должны совпадать</div>
+                    <input type="password" name="password2" class="form-control" id="id_password2" placeholder="Повторите пароль">
                 </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Создать аккаунт</button>
+                <button type="submit" class="btn btn-login w-100 py-2 mb-3">Создать аккаунт</button>
                 <div class="text-center mb-3">
-                    <a href="{% url 'users:login' %}" class="text-decoration-none">Уже есть аккаунт?</a>
+                    <a href="{% url 'users:login' %}" class="form-link">Уже есть аккаунт?</a>
                 </div>
-                <a href="/" class="btn btn-outline-primary w-100 py-2">Назад</a>
+                <a href="/" class="btn btn-back w-100 py-2">Назад</a>
             </form>
         </div>
     </div>
 </div>
+
 <style>
-    @media (max-width: 576px) {
-      .card {
-        border: none;
-        box-shadow: none;
-      }
-      body {
-        background-color: #f8f9fa;
-      }
+/* Фон страницы */
+.login-page {
+    min-height: 80vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+}
+
+/* Карточка */
+.login-card {
+    border-radius: 1rem;
+    background: rgba(30, 60, 114, 0.85);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    color: white;
+}
+
+/* Заголовок */
+.login-card h2 span {
+    color: #4facfe;
+}
+
+/* Поля ввода */
+.form-control {
+    border-radius: 50px;
+    padding: 0.6rem 1rem;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
+.form-control::placeholder {
+    color: rgba(255,255,255,0.7);
+}
+.form-control:focus {
+    background: rgba(255,255,255,0.25);
+    box-shadow: 0 0 0 3px rgba(79,172,254,0.4);
+}
+
+/* Кнопка Создать аккаунт */
+.btn-login {
+    background-color: #4facfe;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+}
+.btn-login:hover {
+    background-color: #00c6ff;
+}
+
+/* Кнопка Назад */
+.btn-back {
+    background: linear-gradient(45deg, #f093fb, #f5576c);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-weight: 600;
+}
+.btn-back:hover {
+    background: linear-gradient(45deg, #f5576c, #f093fb);
+}
+
+/* Ссылки */
+.form-link {
+    color: #ffffffcc;
+    text-decoration: none;
+    font-weight: 500;
+}
+.form-link:hover {
+    color: white;
+    text-shadow: 0 0 8px rgba(255,255,255,0.6);
+}
+
+/* Мобильная адаптация */
+@media (max-width: 576px) {
+    .login-card {
+      background: rgba(30, 60, 114, 0.95);
+      color: white;
     }
-    .invalid-feedback {
-      display: none;
-    }
-    .was-validated .invalid-feedback {
-      display: block;
-    }
+}
 </style>
-<script>
-    // Валидация форм на клиенте
-    (() => {
-      'use strict'
-      const forms = document.querySelectorAll('.needs-validation')
-      Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-          if (!form.checkValidity()) {
-            event.preventDefault()
-            event.stopPropagation()
-          }
-          form.classList.add('was-validated')
-        }, false)
-      })
-    })()
-</script>
 {% endblock %}
