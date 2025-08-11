@@ -1,10 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-
-</body>
-</html>
+{% extends "Tracker/base.html" %}
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+  <div class="card shadow-sm col-12 col-md-8 col-lg-6">
+    <div class="card-body p-4">
+      <h2 class="text-center mb-4">Вход в Tracker</h2>
+      {% if form.errors %}
+      <div class="alert alert-danger alert-dismissible fade show">
+        Неверный логин или пароль
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+      {% endif %}
+      <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="id_username" class="form-label">Имя пользователя</label>
+          <input type="text" name="username" class="form-control" id="id_username" required>
+        </div>
+        <div class="mb-3">
+          <label for="id_password" class="form-label">Пароль</label>
+          <input type="password" name="password" class="form-control" id="id_password" required>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Войти</button>
+        <a href="/" class="btn btn-outline-primary w-100 py-2 mb-3">Назад</a>
+        <div class="d-flex justify-content-between mb-3">
+          <a href="{% url 'users:register' %}" class="text-decoration-none">Регистрация</a>
+          <a href="#" class="text-decoration-none">Забыли пароль?</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<style>
+  @media (max-width: 576px) {
+    .card {
+      border: none;
+      box-shadow: none;
+    }
+    body {
+      background-color: #f8f9fa;
+    }
+  }
+</style>
+{% endblock %}

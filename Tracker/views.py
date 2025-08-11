@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import (
     CreateView,
@@ -11,9 +12,13 @@ from Tracker.models import Workout, Exercise
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 
-class HomeView(LoginRequiredMixin, TemplateView):
-    template_name = 'Tracker/menu.html'
-    login_url = 'users:login'
+class HomeView(TemplateView):
+    template_name = 'Tracker/landing.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('tracker:workout_list')
+        return super().dispatch(request, *args, **kwargs)
 
 
 class WorkoutListView(LoginRequiredMixin, ListView):
@@ -35,8 +40,8 @@ class WorkoutListView(LoginRequiredMixin, ListView):
 class WorkoutCreateView(LoginRequiredMixin, CreateView):
     """Создание тренировки"""
     form_class = WorkoutForm
-    template_name = "form.html"
-    success_url = reverse_lazy("workout:workout_list")
+    template_name = "Tracker/form.html"
+    success_url = reverse_lazy("tracker:workout_list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -47,7 +52,7 @@ class WorkoutCreateView(LoginRequiredMixin, CreateView):
 class WorkoutDetailView(LoginRequiredMixin, DetailView):
     """Вывод 1 тренировки"""
     model = Workout
-    template_name = 'workout_detail.html'
+    template_name = 'Tracker/workout_detail.html'
     context_object_name = 'workout'
 
     def get_queryset(self):
@@ -57,7 +62,7 @@ class WorkoutDetailView(LoginRequiredMixin, DetailView):
 class WorkoutUpdateView(LoginRequiredMixin, UpdateView):
     """Обновление тренировки"""
     model = Workout
-    template_name = 'workout_update.html'
+    template_name = 'Tracker/workout_update.html'
     form_class = WorkoutForm
 
     def get_queryset(self):
@@ -67,7 +72,7 @@ class WorkoutUpdateView(LoginRequiredMixin, UpdateView):
 class WorkoutDeleteView(LoginRequiredMixin, DeleteView):
     """Удаление тренировки"""
     model = Workout
-    template_name = 'workout_confirm_delete.html'
+    template_name = 'Tracker/workout_confirm_delete.html'
     success_url = reverse_lazy('tracker:workout_list')
 
     def get_queryset(self):
@@ -77,7 +82,7 @@ class WorkoutDeleteView(LoginRequiredMixin, DeleteView):
 class ExerciseCreateView(LoginRequiredMixin, CreateView):
     """Создание упражнений"""
     form_class = ExerciseForm
-    template_name = "form.html"
+    template_name = "Tracker/form.html"
     context_object_name = 'exercises'
 
     def form_valid(self, form):
@@ -91,7 +96,7 @@ class ExerciseCreateView(LoginRequiredMixin, CreateView):
 class SetCreateView(LoginRequiredMixin, CreateView):
     """Создание подходов"""
     form_class = SetForm
-    template_name = "form.html"
+    template_name = "Tracker/form.html"
     context_object_name = 'sets'
 
     def form_valid(self, form):

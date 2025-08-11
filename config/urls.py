@@ -6,6 +6,7 @@ from config import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('', HomeView.as_view(), name='root'),  # главная страница
     path('admin/', admin.site.urls),
     path('tracker/', include('Tracker.urls', namespace='tracker')),
     path('users/', include('users.urls', namespace='users'))

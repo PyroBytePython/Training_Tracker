@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}Workout Tracker{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #6c757d;
+            --dark-color: #343a40;
+            --gradient-start: #4e73df;
+            --gradient-end: #224abe;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f8f9fc;
+        }
+
+        .navbar {
+            background-color: var(--dark-color) !important;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.5rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        .feature-card {
+            transition: all 0.3s ease;
+            border: none;
+            border-radius: 0.35rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.2);
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            color: white;
+            padding: 4rem 0;
+            border-radius: 0.35rem;
+            margin-bottom: 2rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
+
+            .hero-section {
+                padding: 2rem 0;
+            }
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<!-- Навигационная панель -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'root' %}">WorkoutTracker</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'root' %}">Главная</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'tracker:workout_list' %}">Тренировки</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" title="В разработке">Календарь</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" title="В разработке">Калории</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:profile' %}">Профиль</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:login' %}">Войти</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:register' %}">Регистрация</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Основное содержимое -->
+<main class="main-content">
+    <div class="container">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+</main>
+
+<!-- Подвал -->
+<footer class="footer">
+    <div class="container text-center">
+        <span>&copy; {% now "Y" %} Workout Tracker. Все права защищены.</span>
+    </div>
+</footer>
+
+<!-- Bootstrap 5 JS Bundle with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom JS -->
+<script>
+    // Отображение уведомлений для заблокированных функций
+    document.querySelectorAll('.disabled').forEach(item => {
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            alert('Эта функция находится в разработке и будет доступна в ближайшее время!');
+        });
+    });
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

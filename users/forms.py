@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.forms import BooleanField
 from django.contrib.auth.forms import UserCreationForm
 from users.models import User
+from django import forms
 
 
 class StyleFormMixin:
@@ -15,12 +16,20 @@ class StyleFormMixin:
 
 
 class UserRegisterForm(StyleFormMixin, UserCreationForm):
+    email = forms.EmailField(required=True)
+
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2')
+        fields = ('username', 'email', 'password1', 'password2')
 
     def clean_username(self):
-        username = self.cleaned_data['username']
-        if User.objects.filter(username=username):
-            raise ValidationError('Это имя пользователя уже занято')
+        username = self.cleaned_data.get('username')
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError("Это имя пользователя уже занято")
         return username
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Этот email уже используется")
+        return email
