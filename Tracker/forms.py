@@ -30,7 +30,7 @@ class WorkoutForm(ModelForm):
     def save(self, commit=True):
         instance = super().save(commit=False)
         if self.user:
-            instance.user = self.user  # Устанавливаем пользователя
+            instance.user = self.user
         if commit:
             instance.save()
         return instance
@@ -40,24 +40,31 @@ class ExerciseForm(ModelForm):
     class Meta:
         model = Exercise
         fields = ['name', 'muscle_group']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'muscle_group': forms.Select(attrs={'class': 'form-select'}),
+        }
 
 
 class SetForm(ModelForm):
     class Meta:
         model = Set
-        fields = ['weight', 'reps', 'exercise']
+        fields = ['weight', 'reps', 'rest_after_set']
 
     def clean_weight(self):
-        weight = self.cleaned_data["weight"]
-
+        weight = self.cleaned_data.get("weight")
+        if weight is None:
+            return 0
         if weight < 0:
-            raise ValidationError('Не может быть меньше 0')
+            raise forms.ValidationError('Не может быть меньше 0')
         if weight > 500:
-            raise ValidationError('Слишком тяжелый вес')
+            raise forms.ValidationError('Слишком тяжелый вес')
         return weight
 
     def clean_reps(self):
-        reps = self.cleaned_data['reps']
-
+        reps = self.cleaned_data.get('reps')
+        if reps is None:
+            raise forms.ValidationError('Укажите количество повторений')
         if reps < 1:
-            raise ValidationError('Минимум 1 повторение')
+            raise forms.ValidationError('Минимум 1 повторение')
+        return reps

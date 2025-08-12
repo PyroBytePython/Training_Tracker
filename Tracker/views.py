@@ -1,15 +1,12 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import (
-    CreateView,
-    DetailView,
-    ListView,
-    UpdateView, DeleteView, TemplateView,
+    CreateView, ListView, UpdateView, DeleteView, TemplateView
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from Tracker.forms import WorkoutForm, ExerciseForm, SetForm
 from Tracker.models import Workout, Exercise
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class HomeView(TemplateView):
@@ -22,15 +19,14 @@ class HomeView(TemplateView):
 
 
 class WorkoutListView(LoginRequiredMixin, ListView):
-    """Представление списка тренировок"""
+    """Список тренировок пользователя"""
     model = Workout
-    template_name = "workout_list.html"
+    template_name = "Tracker/workout_list.html"
     context_object_name = "workouts"
     paginate_by = 15
 
     def get_queryset(self):
         queryset = Workout.objects.filter(user=self.request.user).order_by("-date")
-
         comment = self.request.GET.get("comment")
         if comment:
             queryset = queryset.search_comment(comment)
@@ -40,23 +36,13 @@ class WorkoutListView(LoginRequiredMixin, ListView):
 class WorkoutCreateView(LoginRequiredMixin, CreateView):
     """Создание тренировки"""
     form_class = WorkoutForm
-    template_name = "Tracker/form.html"
+    template_name = "Tracker/workout_form.html"
     success_url = reverse_lazy("tracker:workout_list")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
-
-
-class WorkoutDetailView(LoginRequiredMixin, DetailView):
-    """Вывод 1 тренировки"""
-    model = Workout
-    template_name = 'Tracker/workout_detail.html'
-    context_object_name = 'workout'
-
-    def get_queryset(self):
-        return Workout.objects.filter(user=self.request.user)
 
 
 class WorkoutUpdateView(LoginRequiredMixin, UpdateView):
@@ -79,34 +65,54 @@ class WorkoutDeleteView(LoginRequiredMixin, DeleteView):
         return Workout.objects.filter(user=self.request.user)
 
 
-class ExerciseCreateView(LoginRequiredMixin, CreateView):
-    """Создание упражнений"""
-    form_class = ExerciseForm
-    template_name = "Tracker/form.html"
+class ExerciseListView(LoginRequiredMixin, ListView):
+    """Список упражнений для тренировки пользователя"""
+    model = Exercise
+    template_name = 'Tracker/exercise_list.html'
     context_object_name = 'exercises'
 
-    def form_valid(self, form):
-        form.instance.workout_id = self.kwargs['workout_id']
-        return super().form_valid(form)
+    def get_queryset(self):
+        workout = get_object_or_404(Workout, id=self.kwargs['workout_id'], user=self.request.user)
+        self._workout = workout
+        return workout.exercises.all()
 
-    def get_success_url(self):
-        return reverse('tracker:workout_detail', kwargs={'pk': self.kwargs['workout_id']})
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['workout'] = getattr(self, '_workout', None)
+        return context
+
+
+class ExerciseCreateView(LoginRequiredMixin, CreateView):
+    """Создание упражнения"""
+    form_class = ExerciseForm
+    template_name = "Tracker/exercise_form.html"
+
+    def form_valid(self, form):
+        workout = get_object_or_404(Workout, pk=self.kwargs['workout_id'], user=self.request.user)
+        form.instance.workout = workout
+        self.object = form.save()
+        return redirect('tracker:exercise_list', workout_id=workout.id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['workout'] = get_object_or_404(Workout, pk=self.kwargs['workout_id'], user=self.request.user)
+        return context
 
 
 class SetCreateView(LoginRequiredMixin, CreateView):
-    """Создание подходов"""
+    """Создание подхода"""
     form_class = SetForm
-    template_name = "Tracker/form.html"
-    context_object_name = 'sets'
+    template_name = "Tracker/set_form.html"  # укажи свой шаблон для формы подхода
 
     def form_valid(self, form):
-        form.instance.exercise_id = self.kwargs['exercise_id']
+        exercise = get_object_or_404(Exercise, pk=self.kwargs['exercise_id'], workout__user=self.request.user)
+        form.instance.exercise = exercise
         return super().form_valid(form)
 
     def get_success_url(self):
         exercise = Exercise.objects.select_related('workout').get(id=self.kwargs['exercise_id'])
-        return reverse('tracker:workout_detail', kwargs={'pk': exercise.workout.id})
+        return reverse('tracker:exercise_list', kwargs={'workout_id': exercise.workout.id})
 
 
 class MenuView(LoginRequiredMixin, TemplateView):
-    template_name = 'tracker/menu.html'
+    template_name = 'Tracker/menu.html'

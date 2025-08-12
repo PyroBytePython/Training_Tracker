@@ -19,7 +19,7 @@ class Workout(models.Model):
         null=True,
         blank=True,
         verbose_name="Комментарий",
-        help_text="Заметки о тренировки",
+        help_text="Заметка о тренировке",
     )
     user = models.ForeignKey(
         User,
@@ -91,7 +91,6 @@ class Set(models.Model):
     )
     reps = models.PositiveIntegerField(
         verbose_name="Количество повторений",
-        help_text="Количество повторений",
         validators=[validate_reps],
     )
     rest_after_set = models.PositiveIntegerField(

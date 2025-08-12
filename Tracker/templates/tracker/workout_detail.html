@@ -1,0 +1,65 @@
+{% extends "Tracker/base.html" %}
+
+{% block title %}Тренировка — {{ workout.date|date:"d.m.Y H:i" }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Кнопка "Назад к списку" -->
+    <div class="mb-4">
+        <a href="{% url 'tracker:workout_list' %}" class="btn btn-outline-hero shadow-sm">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
+    </div>
+
+    <!-- Карточка с инфо о тренировке -->
+    <div class="card workout-card p-4 mb-4 border-0 glass-effect">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <h4 class="fw-bold mb-1">{{ workout.date|date:"d.m.Y H:i" }}</h4>
+                <p class="text-muted mb-0">{{ workout.user.get_full_name|default:workout.user.username }}</p>
+            </div>
+            <div class="text-end d-flex flex-column gap-2">
+                <a href="{% url 'tracker:workout_update' workout.pk %}" class="btn btn-sm btn-outline-hero w-100">Изменить</a>
+                <a href="{% url 'tracker:workout_delete' workout.pk %}" class="btn btn-sm btn-outline-hero w-100">Удалить</a>
+            </div>
+        </div>
+
+        <hr class="my-3">
+
+        <div>
+            <h6 class="mb-1">Комментарий</h6>
+            {% if workout.comment %}
+            <p class="mb-0 text-muted">{{ workout.comment }}</p>
+            {% else %}
+            <p class="mb-0 text-muted fst-italic">Комментарий отсутствует</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Действия -->
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+        <h5 class="fw-bold mb-0">Упражнения</h5>
+        <div class="d-flex gap-2">
+            <a href="{% url 'tracker:exercise_list' workout.pk %}" class="btn btn-outline-hero btn-sm">
+                Все упражнения
+            </a>
+            <a href="{% url 'tracker:exercise_create' workout_id=workout.pk %}" class="btn btn-primary-hero btn-sm">
+                Добавить
+            </a>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+{% endblock %}

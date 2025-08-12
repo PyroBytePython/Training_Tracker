@@ -1,0 +1,182 @@
+{% extends "Tracker/base.html" %}
+
+{% block title %}Мои тренировки - Workout Tracker{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Кнопка "Назад" -->
+    <div class="mb-4">
+        <a href="/" class="btn btn-outline-hero shadow-sm">
+            <i class="bi bi-arrow-left"></i> На главную
+        </a>
+    </div>
+
+    <!-- Заголовок и кнопка -->
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+        <h2 class="fw-bold">Мои тренировки</h2>
+        <a href="{% url 'tracker:workout_create' %}" class="btn btn-primary-hero shadow-sm">
+            <i class="bi bi-plus-lg"></i> Добавить тренировку
+        </a>
+    </div>
+
+    {% if workouts %}
+    <div class="row g-4">
+        {% for workout in workouts %}
+        <div class="col-md-6 col-lg-4" data-animate data-animate-delay="{{ forloop.counter }}">
+            <div class="card workout-card h-100 border-0 p-3">
+
+                <!-- Определяем иконку по muscle_group первого упражнения -->
+                {% with first_ex=workout.exercises.first %}
+                <div class="feature-icon
+                        {% if first_ex %}
+                            {% if first_ex.muscle_group == 'chest' %} bg-primary
+                            {% elif first_ex.muscle_group == 'back' %} bg-secondary
+                            {% elif first_ex.muscle_group == 'arms' %} bg-success
+                            {% elif first_ex.muscle_group == 'legs' %} bg-warning
+                            {% elif first_ex.muscle_group == 'core' %} bg-danger
+                            {% elif first_ex.muscle_group == 'cardio' %} bg-info
+                            {% endif %}
+                        {% else %}
+                            bg-dark
+                        {% endif %}
+                        mb-3">
+
+                    {% if first_ex %}
+                    {% if first_ex.muscle_group == 'chest' %}
+                    <i class="bi bi-heart-half"></i>
+                    {% elif first_ex.muscle_group == 'back' %}
+                    <i class="bi bi-arrow-repeat"></i>
+                    {% elif first_ex.muscle_group == 'arms' %}
+                    <i class="bi bi-hand-index-thumb"></i>
+                    {% elif first_ex.muscle_group == 'legs' %}
+                    <i class="bi bi-emoji-sunglasses"></i>
+                    {% elif first_ex.muscle_group == 'core' %}
+                    <i class="bi bi-circle-half"></i>
+                    {% elif first_ex.muscle_group == 'cardio' %}
+                    <i class="bi bi-heart-pulse"></i>
+                    {% endif %}
+                    {% else %}
+                    <i class="bi bi-lightning-charge"></i>
+                    {% endif %}
+                </div>
+                {% endwith %}
+
+                <!-- Дата -->
+                <h5 class="fw-semibold mb-2">{{ workout.date|date:"d.m.Y H:i" }}</h5>
+
+                <!-- Комментарий -->
+                {% if workout.comment %}
+                <p class="text-muted small">{{ workout.comment|truncatechars:80 }}</p>
+                {% else %}
+                <p class="text-muted small">Без комментария</p>
+                {% endif %}
+
+                <!-- Информация -->
+                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                    <small class="text-muted">
+                        {% if workout.exercises.count %}
+                        {{ workout.exercises.count }} упражн.
+                        {% else %}
+                        Нет упражнений
+                        {% endif %}
+                    </small>
+                    <div class="d-flex flex-column gap-2" style="min-width: 150px;">
+                        <a href="{% url 'tracker:exercise_list' workout.pk %}"
+                           class="btn btn-outline-hero btn-sm text-nowrap w-100">
+                            Все упражнения
+                        </a>
+                        <a href="{% url 'tracker:exercise_create' workout_id=workout.pk %}"
+                           class="btn btn-primary-hero btn-sm w-100">
+                            Добавить
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="text-center py-5" data-animate data-animate-delay="1">
+        <i class="bi bi-clipboard2-plus fs-1 mb-3 text-secondary"></i>
+        <h5 class="mb-2">У вас пока нет тренировок</h5>
+        <p class="text-muted">Добавьте тренировку, чтобы начать отслеживать свой прогресс</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .workout-card {
+        border-radius: 1rem;
+        background: #f9f9fb;
+        box-shadow: 8px 8px 16px rgba(0,0,0,0.05),
+                    -8px -8px 16px rgba(255,255,255,0.8);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .workout-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 12px 12px 24px rgba(0,0,0,0.08),
+                    -12px -12px 24px rgba(255,255,255,0.8);
+    }
+
+    .feature-icon {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1),
+                    inset -3px -3px 6px rgba(255,255,255,0.7);
+    }
+
+    .bg-primary { background: #3D5AFE !important; }
+    .bg-secondary { background: #FF8A65 !important; }
+    .bg-success { background: #00C853 !important; }
+    .bg-warning { background: #FFD600 !important; }
+    .bg-danger { background: #E53935 !important; }
+    .bg-info { background: #29B6F6 !important; }
+    .bg-dark { background: #424242 !important; }
+
+    /* Унифицируем размер кнопок */
+    .btn-primary-hero,
+    .btn-outline-hero {
+        border-radius: 50px;
+        font-weight: 600;
+        padding: 0.6rem 1.6rem; /* одинаковый размер */
+        line-height: 1.2; /* чтобы текст был на одной линии по вертикали */
+    }
+
+    .btn-primary-hero {
+        background-color: #e63946;
+        color: white;
+        border: none;
+    }
+    .btn-outline-hero {
+        background-color: #1d3557;
+        color: white;
+        border: none;
+    }
+    .btn-outline-hero:hover {
+        background-color: #1d3557;
+        color: white;
+    }
+
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    [data-animate] {
+        opacity: 0;
+        animation: fadeUp 0.8s ease forwards;
+    }
+    [data-animate-delay="1"] { animation-delay: 0.1s; }
+    [data-animate-delay="2"] { animation-delay: 0.2s; }
+    [data-animate-delay="3"] { animation-delay: 0.3s; }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+{% endblock %}
