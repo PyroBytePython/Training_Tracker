@@ -11,20 +11,16 @@
         </div>
 
         <!-- Заголовок -->
-        <h2>Удалить тренировку?</h2>
+        <h2>Удалить упражнение?</h2>
         <p>
-            Дата: <strong>{{ workout.date|date:"d.m.Y H:i" }}</strong><br>
-            {% if workout.comment %}
-                Комментарий: "{{ workout.comment }}"
-            {% else %}
-                Без комментария
-            {% endif %}
+            Название: <strong>{{ object.name }}</strong><br>
+            Группа мышц: {{ object.get_muscle_group_display }}
         </p>
 
         <!-- Предупреждение -->
         <div class="delete-warning">
             <i class="bi bi-exclamation-circle"></i>
-            <span>Это действие нельзя отменить. Все упражнения и подходы будут удалены.</span>
+            <span>Это действие нельзя отменить. Все данные по этому упражнению будут удалены.</span>
         </div>
 
         <!-- Кнопки -->
@@ -33,7 +29,7 @@
             <button type="submit" class="btn-delete">
                 <i class="bi bi-check-lg"></i> Удалить
             </button>
-            <a href="{% url 'tracker:workout_list' %}" class="btn-cancel">
+            <a href="{% url 'tracker:exercise_list' workout.id %}" class="btn-cancel">
                 <i class="bi bi-x-lg"></i> Отмена
             </a>
         </form>

@@ -23,7 +23,7 @@ class WorkoutListView(LoginRequiredMixin, ListView):
     model = Workout
     template_name = "Tracker/workout_list.html"
     context_object_name = "workouts"
-    paginate_by = 15
+    paginate_by = 10
 
     def get_queryset(self):
         queryset = Workout.objects.filter(user=self.request.user).order_by("-date")
@@ -50,6 +50,7 @@ class WorkoutUpdateView(LoginRequiredMixin, UpdateView):
     model = Workout
     template_name = 'Tracker/workout_update.html'
     form_class = WorkoutForm
+    success_url = reverse_lazy('tracker:workout_list')
 
     def get_queryset(self):
         return Workout.objects.filter(user=self.request.user)
@@ -70,11 +71,12 @@ class ExerciseListView(LoginRequiredMixin, ListView):
     model = Exercise
     template_name = 'Tracker/exercise_list.html'
     context_object_name = 'exercises'
+    paginate_by = 10
 
     def get_queryset(self):
         workout = get_object_or_404(Workout, id=self.kwargs['workout_id'], user=self.request.user)
         self._workout = workout
-        return workout.exercises.all()
+        return workout.exercises.order_by('-id')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -97,6 +99,40 @@ class ExerciseCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['workout'] = get_object_or_404(Workout, pk=self.kwargs['workout_id'], user=self.request.user)
         return context
+
+
+class ExerciseUpdateView(LoginRequiredMixin, UpdateView):
+    """Обновление упражнений"""
+    model = Exercise
+    form_class = ExerciseForm
+    template_name = 'tracker/exercise_update.html'
+
+    def get_queryset(self):
+        return Exercise.objects.filter(workout__user=self.request.user, workout_id=self.kwargs['workout_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['workout'] = self.object.workout
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('tracker:exercise_list', kwargs={'workout_id': self.object.workout.id})
+
+
+class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
+    model = Exercise
+    template_name = 'Tracker/exercise_confirm_delete.html'
+
+    def get_queryset(self):
+        return Exercise.objects.filter(workout__user=self.request.user, workout_id=self.kwargs['workout_id'])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['workout'] = self.object.workout
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('tracker:exercise_list', kwargs={'workout_id': self.object.workout.id})
 
 
 class SetCreateView(LoginRequiredMixin, CreateView):

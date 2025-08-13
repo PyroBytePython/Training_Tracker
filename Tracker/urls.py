@@ -6,7 +6,7 @@ from .views import (
     WorkoutUpdateView,
     WorkoutDeleteView,
     ExerciseCreateView,
-    SetCreateView, ExerciseListView
+    SetCreateView, ExerciseListView, ExerciseUpdateView, ExerciseDeleteView
 )
 
 app_name = 'Tracker'
@@ -23,6 +23,8 @@ urlpatterns = [
     # Exercise routes
     path('workouts/<int:workout_id>/exercises/create/', ExerciseCreateView.as_view(), name='exercise_create'),
     path('workouts/<int:workout_id>/exercises/', ExerciseListView.as_view(), name='exercise_list'),
+    path('workouts/<int:workout_id>/exercises/<int:pk>/update/', ExerciseUpdateView.as_view(), name='exercise_update'),
+    path('workouts/<int:workout_id>/exercises/<int:pk>/delete/', ExerciseDeleteView.as_view(), name='exercise_delete'),
 
     # Set routes
     path('exercises/<int:exercise_id>/sets/create/', SetCreateView.as_view(), name='set_create'),

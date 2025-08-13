@@ -36,11 +36,21 @@
                                 <h6 class="mb-0">{{ exercise.name }}</h6>
                                 <small class="text-muted">{{ exercise.get_muscle_group_display }}</small>
                             </div>
-                            <div class="text-end">
-                                <a href="#" class="btn btn-sm btn-outline-hero">
-                                    Изм.
-                                </a>
-                            </div>
+                            <!-- Кнопка удаления -->
+                            <a href="{% url 'tracker:exercise_delete' workout.id exercise.id %}"
+                               class="btn btn-sm btn-outline-danger"
+                               title="Удалить упражнение"
+                               style="position: absolute; top: 10px; right: 10px;">
+                                <i class="bi bi-x-lg"></i>
+                            </a>
+
+                            <!-- Кнопка изменения -->
+                            <a href="{% url 'tracker:exercise_update' workout.id exercise.id %}"
+                               class="btn btn-sm btn-outline-secondary"
+                               title="Изменить упражнение"
+                               style="position: absolute; top: 10px; right: 50px;">
+                                <i class="bi bi-pencil"></i>
+                            </a>
                         </div>
 
                         <!-- Подходы -->
@@ -82,6 +92,34 @@
     {% endif %}
 </div>
 
+{% if is_paginated %}
+<div class="mt-4">
+    <nav aria-label="Навигация по страницам">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
+            </li>
+            {% endif %}
+
+            {% for num in paginator.page_range %}
+            {% if num == page_obj.number %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
+            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endif %}
+
 <style>
     .glass-effect {
       background: rgba(255, 255, 255, 0.75);
@@ -121,6 +159,23 @@
     .gradient-legs { background: linear-gradient(135deg, #fbc2eb, #a6c1ee); }
     .gradient-core { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
     .gradient-cardio { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
+
+    .pagination .page-link {
+    color: #1d3557; /* мягкий темно-синий */
+    background-color: #f8f9fa; /* светлый фон */
+    border-color: #dee2e6;
+}
+
+.pagination .page-link:hover {
+    background-color: #e9ecef;
+    color: #1d3557;
+}
+
+.pagination .active .page-link {
+    background-color: #e63946; /* пастельно-красный в тон кнопкам */
+    border-color: #e63946;
+    color: white;
+}
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
