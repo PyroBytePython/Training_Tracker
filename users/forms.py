@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError
+from django.forms import ModelForm
 from django.forms import BooleanField
 from django.contrib.auth.forms import UserCreationForm
-from users.models import User
+from users.models import User, UserProfile
 from django import forms
 
 
@@ -33,3 +34,15 @@ class UserRegisterForm(StyleFormMixin, UserCreationForm):
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("Этот email уже используется")
         return email
+
+
+class ProfileForm(ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['avatar', 'bio']
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if avatar and avatar.size > 2 * 1024 * 1024:  # 2 МБ
+            raise forms.ValidationError("Аватар не должен быть больше 2 МБ.")
+        return avatar

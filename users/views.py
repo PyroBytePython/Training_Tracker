@@ -1,11 +1,12 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, View
+from django.views.generic import CreateView, View, UpdateView, DetailView
 from django.contrib.auth import login
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from users.forms import UserRegisterForm
-from .models import User, VerificationCode
+from users.forms import UserRegisterForm, ProfileForm
+from .models import User, VerificationCode, UserProfile
 from .services import send_verification_email
 
 
@@ -79,3 +80,22 @@ class ResendCodeView(View):
             pass
 
         return redirect('users:verify')
+
+
+class ProfileView(LoginRequiredMixin, DetailView):
+    model = UserProfile
+    template_name = 'users/profile.html'
+    context_object_name = 'profile'
+
+    def get_object(self, queryset=None):
+        return self.request.user.userprofile
+
+
+class ProfileUpdateView(LoginRequiredMixin, UpdateView):
+    model = UserProfile
+    form_class = ProfileForm
+    template_name = 'users/profile_edit.html'
+    success_url = reverse_lazy('users:profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user.userprofile

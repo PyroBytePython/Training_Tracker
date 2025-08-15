@@ -48,3 +48,35 @@ class VerificationCode(models.Model):
         code = str(random.randint(100000, 999999))
         return cls.objects.create(user=user, code=code)
 
+
+class UserProfile(models.Model):
+    """Профиль пользователя"""
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        verbose_name='Пользователь'
+    )
+
+    avatar = models.ImageField(
+        verbose_name='Аватар пользователя',
+        blank=True,
+        null=True,
+        upload_to='avatars/',
+    )
+
+    bio = models.TextField(
+        blank=True,
+        verbose_name='Описание о себе'
+    )
+
+    joined_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата создания профиля'
+    )
+
+    class Meta:
+        verbose_name = 'Профиль'
+        verbose_name_plural = 'Профили'
+
+    def __str__(self):
+        return self.user.username

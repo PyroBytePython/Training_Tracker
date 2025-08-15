@@ -31,7 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'Tracker',
-    'users'
+    'users.apps.UsersConfig',
 
 ]
 

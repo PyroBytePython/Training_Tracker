@@ -1,6 +1,6 @@
 from django.urls import path
 from django.contrib.auth.views import LoginView, LogoutView
-from .views import RegisterCreateView, ResendCodeView, VerifyView
+from .views import RegisterCreateView, ResendCodeView, VerifyView, ProfileUpdateView, ProfileView
 
 app_name = 'users'
 
@@ -10,4 +10,6 @@ urlpatterns = [
     path('resend-code/', ResendCodeView.as_view(), name='resend_code'),
     path('login/', LoginView.as_view(template_name='users/login.html'), name='login'),
     path('logout/', LogoutView.as_view(template_name='users/logout.html'), name='logout'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/edit/', ProfileUpdateView.as_view(), name='profile_edit'),
 ]
