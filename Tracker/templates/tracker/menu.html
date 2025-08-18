@@ -42,7 +42,7 @@
                          style="cursor: pointer;">
                         <div class="card-body p-4 text-center">
                             <div class="neo-icon text-white mb-3 p-3">
-                                <i class="bi bi-nutrition fs-1"></i>
+                                <i class="bi bi-fire fs-1"></i>
                             </div>
                             <h3 class="card-title h4 text-white">Подсчет калорий</h3>
                             <p class="card-text text-white-50">Учет питания и расчет калорийности</p>
@@ -53,8 +53,29 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно "Скоро" -->
+<div class="modal fade" id="comingSoonModal" tabindex="-1" aria-labelledby="comingSoonLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm-custom">
+        <div class="modal-content neo-modal-goldpink">
+            <div class="modal-body text-center p-3">
+                <div class="neo-icon text-white mb-2 p-2" style="width: 60px; height: 60px; font-size: 1.5rem;">
+                    <i class="bi bi-hourglass-split fs-3"></i>
+                </div>
+                <h3 class="text-white mb-2">Скоро!</h3>
+                <p class="text-white-50 mb-3">
+                    Этот раздел находится в разработке и будет доступен в ближайшее время.
+                </p>
+                <button type="button" class="neo-btn-light px-3 py-1 fw-semibold" data-bs-dismiss="modal">
+                    Понятно
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-/* Общая неоморфная карточка */
+/* --- Карточки --- */
 .feature-card-neo {
     border-radius: 1rem;
     border: none;
@@ -63,8 +84,6 @@
 .feature-card-neo:hover {
     transform: translateY(-4px);
 }
-
-/* Иконка */
 .neo-icon {
     border-radius: 50%;
     display: inline-flex;
@@ -78,50 +97,99 @@
 .feature-card-neo:hover .neo-icon {
     transform: scale(1.05);
 }
-
-/* Мягкие цвета */
+/* Цвета карточек */
 .card-indigo {
-    background: #8fa8ff; /* пастельный индиго */
-    box-shadow: 8px 8px 16px rgba(80, 100, 180, 0.4),
-                -8px -8px 16px rgba(255, 255, 255, 0.6);
+    background: #8fa8ff;
+    box-shadow: 8px 8px 16px rgba(80, 100, 180, 0.4), -8px -8px 16px rgba(255, 255, 255, 0.6);
 }
 .card-indigo .neo-icon {
     background: rgba(255, 255, 255, 0.25);
-    box-shadow: inset 4px 4px 8px rgba(80, 100, 180, 0.4),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+    box-shadow: inset 4px 4px 8px rgba(80, 100, 180, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.6);
 }
-
 .card-orange {
-    background: #ffb799; /* пастельный оранжевый */
-    box-shadow: 8px 8px 16px rgba(160, 80, 50, 0.35),
-                -8px -8px 16px rgba(255, 255, 255, 0.6);
+    background: #ffb799;
+    box-shadow: 8px 8px 16px rgba(160, 80, 50, 0.35), -8px -8px 16px rgba(255, 255, 255, 0.6);
 }
 .card-orange .neo-icon {
     background: rgba(255, 255, 255, 0.25);
-    box-shadow: inset 4px 4px 8px rgba(160, 80, 50, 0.35),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+    box-shadow: inset 4px 4px 8px rgba(160, 80, 50, 0.35), inset -4px -4px 8px rgba(255, 255, 255, 0.6);
 }
-
 .card-green {
-    background: #8ef0b0; /* пастельный зелёный */
-    box-shadow: 8px 8px 16px rgba(40, 110, 60, 0.35),
-                -8px -8px 16px rgba(255, 255, 255, 0.6);
+    background: #8ef0b0;
+    box-shadow: 8px 8px 16px rgba(40, 110, 60, 0.35), -8px -8px 16px rgba(255, 255, 255, 0.6);
 }
 .card-green .neo-icon {
     background: rgba(255, 255, 255, 0.25);
-    box-shadow: inset 4px 4px 8px rgba(40, 110, 60, 0.35),
-                inset -4px -4px 8px rgba(255, 255, 255, 0.6);
+    box-shadow: inset 4px 4px 8px rgba(40, 110, 60, 0.35), inset -4px -4px 8px rgba(255, 255, 255, 0.6);
 }
-
-/* Текст */
 .feature-card-neo h3,
 .feature-card-neo p {
     color: #fff;
 }
+
+/* --- Модалка --- */
+.modal-sm-custom {
+    max-width: 320px;
+    margin: auto; /* центрируем по горизонтали */
+}
+
+/* Компактная модалка в цвете "розовое золото" */
+.neo-modal-goldpink {
+    border-radius: 1rem;
+    border: none;
+    padding: 1.5rem 1rem;
+    min-height: 160px;
+    background: linear-gradient(145deg, #b76e79, #d6a5a1); /* розовое золото */
+    box-shadow: 6px 6px 12px rgba(120, 80, 90, 0.35),
+                -6px -6px 12px rgba(255, 220, 220, 0.4);
+}
+
+/* Иконка внутри */
+.neo-modal-goldpink .neo-icon {
+    background: rgba(255, 240, 240, 0.25);
+    box-shadow: inset 4px 4px 8px rgba(120, 80, 90, 0.35),
+                inset -4px -4px 8px rgba(255, 230, 230, 0.6);
+}
+
+/* Заголовок и текст */
+.modal-title-text {
+    color: #fff7f7;
+    font-weight: 600;
+}
+.modal-subtitle-text {
+    color: rgba(255, 245, 245, 0.85);
+}
+
+/* Кнопка */
+.neo-btn-light {
+    border: none;
+    border-radius: 50px;
+    background: rgba(255, 240, 240, 0.35);
+    color: #fff7f7;
+    box-shadow: inset 4px 4px 8px rgba(255, 230, 230, 0.6),
+                inset -4px -4px 8px rgba(120, 80, 90, 0.35);
+    transition: all 0.25s ease;
+}
+.neo-btn-light:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 2px 2px 4px rgba(120, 80, 90, 0.35),
+                inset -2px -2px 4px rgba(255, 230, 230, 0.6);
+}
+.neo-btn-light:active {
+    transform: translateY(0);
+    box-shadow: inset 6px 6px 12px rgba(120, 80, 90, 0.4),
+                inset -6px -6px 12px rgba(255, 230, 230, 0.6);
+}
+
+/* Уменьшенные паддинги внутри */
+.modal-sm-custom .modal-body {
+    padding: 1rem !important;
+}
 </style>
 <script>
     function showComingSoon() {
-        alert('Этот раздел находится в разработке и будет доступен в ближайшее время!');
+        const modal = new bootstrap.Modal(document.getElementById('comingSoonModal'));
+        modal.show();
     }
 </script>
 {% endblock %}

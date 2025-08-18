@@ -1,10 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "Tracker/base.html" %}
+{% load static %}
 
-</body>
-</html>
+{% block content %}
+<style>
+    .profile-edit-card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .avatar-preview-wrapper {
+        position: relative;
+        display: inline-block;
+    }
+
+    .avatar-preview {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .change-avatar-btn {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        transform: translate(30%, 30%);
+        background: #28a745;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        cursor: pointer;
+        color: #fff;
+        transition: background 0.2s ease-in-out;
+    }
+
+    .change-avatar-btn:hover {
+        background: #218838;
+    }
+
+    .change-avatar-btn input[type="file"] {
+        display: none;
+    }
+
+    .bio-wrapper {
+        position: relative;
+        display: block;
+        text-align: left;
+    }
+
+    .bio-wrapper label {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.4rem;
+    }
+</style>
+
+<div class="profile-edit-card">
+    <h2 class="mb-4">Редактировать профиль</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="avatar-preview-wrapper mb-3">
+            <img id="avatarPreview" src="{{ form.instance.avatar.url }}" alt="Аватар" class="avatar-preview">
+            <label class="change-avatar-btn" title="Изменить фото">
+                <i class="bi bi-pencil-fill"></i>
+                {{ form.avatar }}
+            </label>
+        </div>
+
+        <div class="mb-3 bio-wrapper">
+            <label class="form-label">О себе</label>
+            {{ form.bio }}
+        </div>
+
+        <button type="submit" class="btn btn-success">Сохранить изменения</button>
+        <a href="{% url 'users:profile' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+<script>
+    document.getElementById('id_avatar').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            document.getElementById('avatarPreview').src = URL.createObjectURL(file);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.db import models
+import random
 
 from users.models import User
 from .validators import validate_weight, validate_reps
@@ -99,6 +100,28 @@ class Set(models.Model):
         blank=True,
         null=True,
     )
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        verbose_name="Иконка"
+    )
+
+    ICONS = [
+        "bi-barbell",  # штанга
+        "bi-trophy",  # трофей
+        "bi-stopwatch",  # секундомер
+        "bi-lightning-charge",  # энергия
+        "bi-fire",  # интенсивность
+        "bi-heart-pulse",  # сердечный ритм
+        "bi-award",  # награда
+        "bi-speedometer2",  # скорость
+        "bi-shield-check"  # выносливость
+    ]
+
+    def save(self, *args, **kwargs):
+        if not self.icon:
+            self.icon = random.choice(self.ICONS)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Подход"

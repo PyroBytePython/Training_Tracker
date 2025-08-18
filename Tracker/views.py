@@ -1,12 +1,14 @@
+import random
+
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import (
-    CreateView, ListView, UpdateView, DeleteView, TemplateView
+    CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from Tracker.forms import WorkoutForm, ExerciseForm, SetForm
-from Tracker.models import Workout, Exercise
+from Tracker.models import Workout, Exercise, Set
 
 
 class HomeView(TemplateView):
@@ -138,7 +140,7 @@ class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
 class SetCreateView(LoginRequiredMixin, CreateView):
     """Создание подхода"""
     form_class = SetForm
-    template_name = "Tracker/set_form.html"  # укажи свой шаблон для формы подхода
+    template_name = "Tracker/set_form.html"
 
     def form_valid(self, form):
         exercise = get_object_or_404(Exercise, pk=self.kwargs['exercise_id'], workout__user=self.request.user)
@@ -148,6 +150,55 @@ class SetCreateView(LoginRequiredMixin, CreateView):
     def get_success_url(self):
         exercise = Exercise.objects.select_related('workout').get(id=self.kwargs['exercise_id'])
         return reverse('tracker:exercise_list', kwargs={'workout_id': exercise.workout.id})
+
+
+class ExerciseSetsView(LoginRequiredMixin, TemplateView):
+    template_name = 'Tracker/exercise_sets.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        exercise = get_object_or_404(
+            Exercise,
+            id=self.kwargs['pk'],
+            workout__user=self.request.user
+        )
+
+        # Сортировка подходов: новые сверху
+        sets = exercise.sets.order_by('-id')
+
+        context['exercise'] = exercise
+        context['sets'] = sets
+        return context
+
+
+
+class SetDeleteView(LoginRequiredMixin, DeleteView):
+    model = Set
+    template_name = 'Tracker/set_confirm_delete.html'
+    pk_url_kwarg = 'set_id'
+
+    def get_queryset(self):
+        # фильтрация: удалять можно только свои подходы
+        return Set.objects.filter(exercise__workout__user=self.request.user)
+
+    def get_success_url(self):
+        # возвращаем обратно на список подходов
+        exercise_id = self.object.exercise.id
+        return reverse('tracker:exercise_sets', kwargs={'pk': exercise_id})
+
+
+class SetUpdateView(LoginRequiredMixin, UpdateView):
+    model = Set
+    form_class = SetForm
+    template_name = 'Tracker/set_update.html'
+    pk_url_kwarg = 'set_id'
+
+    def get_queryset(self):
+        return Set.objects.filter(exercise__workout__user=self.request.user)
+
+    def get_success_url(self):
+        return reverse('tracker:exercise_sets', kwargs={'pk': self.object.exercise.id})
 
 
 class MenuView(LoginRequiredMixin, TemplateView):

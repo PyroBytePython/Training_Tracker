@@ -1,0 +1,143 @@
+{% extends "Tracker/base.html" %}
+
+{% block title %}Подтверждение удаления{% endblock %}
+
+{% block content %}
+<div class="delete-container">
+    <div class="delete-card" data-animate>
+        <!-- Иконка -->
+        <div class="delete-icon">
+            <i class="bi bi-trash-fill"></i>
+        </div>
+
+        <!-- Заголовок -->
+        <h2>Удалить подход?</h2>
+        <p>
+            {% if object.weight %}
+                Вес: <strong>{{ object.weight|floatformat:1 }} кг</strong><br>
+            {% else %}
+                Вес: <strong>без веса</strong><br>
+            {% endif %}
+            Повторения: <strong>{{ object.reps }}</strong><br>
+            {% if object.rest_after_set %}
+                Отдых: <strong>{{ object.rest_after_set }} сек</strong>
+            {% else %}
+                Отдых: <strong>не указан</strong>
+            {% endif %}
+        </p>
+
+        <!-- Предупреждение -->
+        <div class="delete-warning">
+            <i class="bi bi-exclamation-circle"></i>
+            <span>Это действие нельзя отменить. Данные по этому подходу будут удалены.</span>
+        </div>
+
+        <!-- Кнопки -->
+        <form method="post" class="delete-actions">
+            {% csrf_token %}
+            <button type="submit" class="btn-delete">
+                <i class="bi bi-check-lg"></i> Удалить
+            </button>
+            <a href="{% url 'tracker:exercise_sets' pk=object.exercise.id %}" class="btn-cancel">
+                <i class="bi bi-x-lg"></i> Отмена
+            </a>
+        </form>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #fff1f1 0%, #f7faff 100%);
+    }
+    .delete-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    .delete-card {
+        background: #ffffff;
+        border-radius: 1.5rem;
+        padding: 2.5rem;
+        max-width: 450px;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        animation: fadeUp 0.6s ease forwards;
+    }
+    .delete-icon {
+        font-size: 3.5rem;
+        color: #ef5350;
+        background: #ffebee;
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: inset 3px 3px 6px rgba(0,0,0,0.05),
+                    inset -3px -3px 6px rgba(255,255,255,0.6);
+    }
+    h2 {
+        font-weight: 700;
+        color: #37474f;
+        margin-bottom: 1rem;
+    }
+    p {
+        color: #607d8b;
+        font-size: 1rem;
+    }
+    .delete-warning {
+        background: #fff8e1;
+        border-radius: 0.75rem;
+        padding: 0.8rem 1rem;
+        color: #f57c00;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+    }
+    .delete-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    .btn-delete {
+        background-color: #ef5350;
+        color: white;
+        padding: 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-delete:hover {
+        background-color: #e53935;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239,83,80,0.4);
+    }
+    .btn-cancel {
+        background-color: #eceff1;
+        color: #37474f;
+        padding: 0.8rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+    .btn-cancel:hover {
+        background-color: #cfd8dc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(176,190,197,0.4);
+    }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+{% endblock %}

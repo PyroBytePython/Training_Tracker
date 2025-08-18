@@ -1,0 +1,103 @@
+{% extends "Tracker/base.html" %}
+{% block title %}Подходы — {{ exercise.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Назад -->
+    <div class="mb-4">
+        <a href="{% url 'tracker:exercise_list' workout_id=exercise.workout.id %}"
+           class="btn btn-outline-hero shadow-sm">
+            <i class="bi bi-arrow-left"></i> Назад к упражнениям
+        </a>
+    </div>
+
+    <!-- Название упражнения -->
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+        <div class="d-flex align-items-center gap-3">
+            <div class="exercise-icon gradient-exercise">
+                <i class="bi bi-barbell"></i>
+            </div>
+            <h5 class="fw-bold mb-0">{{ exercise.name }}</h5>
+        </div>
+    </div>
+
+    <!-- Список подходов -->
+    {% if sets %}
+    <div class="row g-3 mb-5">
+        {% for set in sets %}
+        <div class="col-12 col-md-6 col-lg-4" data-animate data-animate-delay="{{ forloop.counter }}">
+            <div class="card workout-card h-100 p-3 border-0 glass-effect hover-scale d-flex flex-column position-relative">
+
+                <!-- Кнопки действий -->
+                <a href="{% url 'tracker:set_delete' set_id=set.id %}"
+                   class="btn btn-sm btn-outline-danger position-absolute top-0 end-0 m-2"
+                   title="Удалить подход">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+                <a href="{% url 'tracker:set_edit' set_id=set.id %}"
+                   class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 me-5 mt-2"
+                   title="Редактировать подход">
+                    <i class="bi bi-pencil"></i>
+                </a>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="feature-icon gradient-core">
+                        <i class="bi {{ set.icon }}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">
+                            {% if set.weight == 0 %}
+                            без веса
+                            {% else %}
+                            {{ set.weight|floatformat:1 }} кг
+                            {% endif %}
+                            × {{ set.reps }} повт.
+                        </h6>
+                        {% if set.rest_after_set %}
+                        <small class="text-muted">Отдых: {{ set.rest_after_set }} сек</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-clipboard2-plus fs-1 mb-3 text-secondary"></i>
+        <h5 class="mb-2">Подходов пока нет</h5>
+        <p class="text-muted">Добавьте первый подход, чтобы начать</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    .hover-scale:hover {
+      transform: scale(1.02);
+      transition: transform 0.3s ease;
+    }
+    .feature-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-size:1.2rem;
+    }
+    .gradient-core {
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+    }
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+{% endblock %}

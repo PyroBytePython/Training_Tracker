@@ -40,6 +40,14 @@ class ProfileForm(ModelForm):
     class Meta:
         model = UserProfile
         fields = ['avatar', 'bio']
+        widgets = {
+            'avatar': forms.FileInput(attrs={'id': 'id_avatar', 'style': 'display:none;'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bio'].widget.attrs.update({'class': 'form-control'})
 
     def clean_avatar(self):
         avatar = self.cleaned_data.get('avatar')

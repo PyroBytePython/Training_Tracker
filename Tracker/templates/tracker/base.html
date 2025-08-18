@@ -78,14 +78,11 @@
 
         <!-- Контейнер для аватарки и бургера -->
         <div class="navbar-toggler-container">
-            <!-- Аватар слева от бургера -->
             {% if user.is_authenticated %}
-            <a href="#" class="navbar-profile">
+            <a href="{% url 'users:profile' %}" class="navbar-profile">
                 <img src="{{ user.userprofile.avatar.url }}" alt="Аватар" class="avatar-img">
             </a>
             {% endif %}
-
-            <!-- Кнопка-бургер -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -95,10 +92,26 @@
         <div class="collapse navbar-collapse ms-auto" id="navbarNav">
             <ul class="navbar-nav ms-auto">
                 {% if user.is_authenticated %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'root' %}">Главная</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'tracker:workout_list' %}">Тренировки</a></li>
-                <li class="nav-item"><a class="nav-link disabled" href="#">Календарь</a></li>
-                <li class="nav-item"><a class="nav-link disabled" href="#">Калории</a></li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'root' %}">
+                        <i class="bi bi-house-door"></i> Главная
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'tracker:workout_list' %}">
+                        <i class="bi bi-bar-chart"></i> Тренировки
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">
+                        <i class="bi bi-calendar-event"></i> Календарь
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#">
+                        <i class="bi bi-fire"></i> Калории
+                    </a>
+                </li>
                 <li class="nav-item">
                     <form method="post" action="{% url 'users:logout' %}">
                         {% csrf_token %}

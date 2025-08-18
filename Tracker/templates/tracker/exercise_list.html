@@ -59,7 +59,12 @@
                             <ul class="list-unstyled mb-2 small">
                                 {% for s in exercise.sets.all %}
                                 <li class="mb-1 text-muted">
-                                    <strong>{{ s.weight|floatformat:1 }} кг</strong> × {{ s.reps }} повт.
+                                    {% if s.weight == 0 %}
+                                    <strong>без веса</strong>
+                                    {% else %}
+                                    <strong>{{ s.weight|floatformat:1 }} кг</strong>
+                                    {% endif %}
+                                    × {{ s.reps }} повт.
                                     {% if s.rest_after_set %} • отдых {{ s.rest_after_set }} сек{% endif %}
                                 </li>
                                 {% endfor %}
@@ -71,13 +76,61 @@
 
                         <!-- Кнопки -->
                         <div class="d-flex flex-column align-items-center mt-auto pt-2">
-                            <button class="btn btn-sm btn-gradient w-100 mb-2" data-trigger="open"
-                                    data-target="#modal-add-set-{{ exercise.id }}">
+                            <button class="btn btn-sm btn-gradient w-100 mb-2" data-bs-toggle="modal"
+                                    data-bs-target="#modal-add-set-{{ exercise.id }}">
                                 <i class="bi bi-plus-lg"></i> Добавить подход
                             </button>
-                            <a href="#" class="btn btn-sm btn-outline-hero w-100">Подробнее</a>
+                            <a href="{% url 'tracker:exercise_sets' exercise.id %}"
+                               class="btn btn-sm btn-outline-hero w-100">
+                                Подробнее
+                            </a>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модалка для добавления подхода -->
+        <div class="modal fade" id="modal-add-set-{{ exercise.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 glass-effect p-3 animate-fade-in" style="border-radius: 1rem;">
+                    <div class="modal-header border-0 pb-0">
+                        <div class="feature-icon gradient-core me-2">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                        </div>
+                        <h5 class="modal-title fw-bold">Добавить подход</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'tracker:set_create' exercise.id %}">
+                        {% csrf_token %}
+                        <div class="modal-body pt-3">
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Вес (кг) <small class="text-muted">(необязательно)</small>
+                                </label>
+                                <input type="number" name="weight" step="0.5" min="0"
+                                       class="form-control" value="0">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Повторения</label>
+                                <input type="number" name="reps" min="1" class="form-control" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">
+                                    Отдых после подхода (сек) <small class="text-muted">(необязательно)</small>
+                                </label>
+                                <input type="number" name="rest_after_set" min="0" class="form-control">
+                            </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0">
+                            <button type="submit" class="btn btn-gradient px-4">
+                                <i class="bi bi-plus-lg me-1"></i> Сохранить
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                                Отмена
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -91,34 +144,6 @@
     </div>
     {% endif %}
 </div>
-
-{% if is_paginated %}
-<div class="mt-4">
-    <nav aria-label="Навигация по страницам">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
-            </li>
-            {% endif %}
-
-            {% for num in paginator.page_range %}
-            {% if num == page_obj.number %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
-            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
-</div>
-{% endif %}
 
 <style>
     .glass-effect {
@@ -160,22 +185,31 @@
     .gradient-core { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
     .gradient-cardio { background: linear-gradient(135deg, #a1c4fd, #c2e9fb); }
 
-    .pagination .page-link {
-    color: #1d3557; /* мягкий темно-синий */
-    background-color: #f8f9fa; /* светлый фон */
-    border-color: #dee2e6;
-}
 
-.pagination .page-link:hover {
-    background-color: #e9ecef;
-    color: #1d3557;
-}
-
-.pagination .active .page-link {
-    background-color: #e63946; /* пастельно-красный в тон кнопкам */
-    border-color: #e63946;
-    color: white;
-}
+      /* Только для модалки */
+    .animate-fade-in {
+        animation: fadeInUp 0.4s ease-out;
+    }
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:white;
+        font-size:1.2rem;
+    }
+    .gradient-core { background: linear-gradient(135deg, #ffecd2, #fcb69f); }
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
 </style>
 
 <link rel="stylesheet" href="https://unpkg.com/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
