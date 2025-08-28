@@ -10,7 +10,7 @@ from .views import (
     SetUpdateView
 )
 
-app_name = 'Tracker'
+app_name = 'tracker'
 
 urlpatterns = [
     path('', MenuView.as_view(), name='menu'),

@@ -14,7 +14,6 @@ class WorkoutListViewTest(TestCase):
             username="testuser",
             password="testpass123"
         )
-        # создаём одну тренировку
         Workout.objects.create(user=self.user, date="2025-01-01")
 
     def test_view_returns_200_for_logged_in_user(self):
