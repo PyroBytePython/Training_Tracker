@@ -108,7 +108,7 @@ jobs:
           SERVER_EMAIL=${{ secrets.SERVER_EMAIL }}
           EOL
           
-          docker-compose pull
-          docker-compose up -d --wait
+          docker compose pull
+          docker compose up -d --wait
 
           EOF
