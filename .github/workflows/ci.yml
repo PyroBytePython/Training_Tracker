@@ -1,0 +1,106 @@
+name: Django CI/CD Pipeline
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install flake8
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 
+
+      - name: Run flake8
+        run: flake8 .
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+          DEBUG: "False"
+        run: python manage.py test
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Log in docker hub
+        run: echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+      - name: Build docker image
+        run: docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }} .
+
+      - name: Push docker image
+        run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Copy files to server
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.prod.yml nginx.conf ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }}:/app/
+
+      - name: Deploy application
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+          set -ex
+          cd /app
+          
+          mv docker-compose.prod.yml docker-compose.yml
+          
+          # Создаем .env файл
+          cat > .env << 'EOL'
+          IMAGE=${{ secrets.DOCKER_HUB_USERNAME }}/myapp:${{ github.sha }}
+          SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+          DEBUG=False
+          DB_NAME=${{ secrets.DB_NAME }}
+          DB_USER=${{ secrets.DB_USER }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          DB_HOST=db
+          DB_PORT=5432
+          EOL
+          
+          docker-compose pull
+          docker-compose up -d --wait
+
+          EOF
