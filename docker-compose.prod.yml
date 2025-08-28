@@ -15,7 +15,8 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      # проверка TCP-порта через Python (есть в образе)
+      test: [ "CMD", "python", "-c", "import socket,sys; s=socket.socket(); s.settimeout(2); s.connect(('localhost',8000)); s.close()" ]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -35,15 +36,22 @@ services:
       retries: 10
 
   nginx:
-    image: nginx:1.19.3
+    image: nginx:1.25-alpine
     ports:
       - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - static_volume:/app/static_collected
     depends_on:
       web:
-         condition: service_healthy
+        condition: service_healthy
+    healthcheck:
+      # Явно используем IPv4, чтобы не уткнуться в ::1
+      test: [ "CMD-SHELL", "wget -qO- http://127.0.0.1/healthz >/dev/null 2>&1 || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
 
 volumes:
   postgres_data:
