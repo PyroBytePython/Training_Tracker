@@ -23,4 +23,3 @@ class SetAdmin(admin.ModelAdmin):
     list_display = ('exercise', 'weight', 'reps', 'rest_after_set')
     list_filter = ('weight', 'reps')
     search_fields = ('weight', 'reps')
-

@@ -1,9 +1,7 @@
-import random
-
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
 from django.views.generic import (
-    CreateView, ListView, UpdateView, DeleteView, TemplateView, DetailView
+    CreateView, ListView, UpdateView, DeleteView, TemplateView
 )
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -12,6 +10,7 @@ from Tracker.models import Workout, Exercise, Set
 
 
 class HomeView(TemplateView):
+    """Главная страница"""
     template_name = 'Tracker/landing.html'
 
     def dispatch(self, request, *args, **kwargs):
@@ -122,6 +121,7 @@ class ExerciseUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление упражнения"""
     model = Exercise
     template_name = 'Tracker/exercise_confirm_delete.html'
 
@@ -153,6 +153,7 @@ class SetCreateView(LoginRequiredMixin, CreateView):
 
 
 class ExerciseSetsView(LoginRequiredMixin, TemplateView):
+    """Подходы"""
     template_name = 'Tracker/exercise_sets.html'
 
     def get_context_data(self, **kwargs):
@@ -172,8 +173,8 @@ class ExerciseSetsView(LoginRequiredMixin, TemplateView):
         return context
 
 
-
 class SetDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление подхода"""
     model = Set
     template_name = 'Tracker/set_confirm_delete.html'
     pk_url_kwarg = 'set_id'
@@ -189,6 +190,7 @@ class SetDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class SetUpdateView(LoginRequiredMixin, UpdateView):
+    """Обновление подхода"""
     model = Set
     form_class = SetForm
     template_name = 'Tracker/set_update.html'
@@ -202,4 +204,5 @@ class SetUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class MenuView(LoginRequiredMixin, TemplateView):
+    """Меню с кнопками"""
     template_name = 'Tracker/menu.html'

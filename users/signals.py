@@ -8,6 +8,7 @@ from .models import UserProfile
 
 User = get_user_model()
 
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     """Создаёт или обновляет профиль пользователя"""
