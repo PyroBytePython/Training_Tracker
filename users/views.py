@@ -27,12 +27,16 @@ class RegisterCreateView(CreateView):
             'password': form.cleaned_data['password1'],
         }
 
-        # создаем код (без user, только raw)
+        # создаем код
         code = VerificationCode.generate_raw_code()
         self.request.session['pending_code'] = code
 
         # отправляем письмо
-        send_verification_email(form.cleaned_data['email'], code)
+        send_verification_email(
+            form.cleaned_data['email'],
+            form.cleaned_data['username'],
+            code
+        )
         return redirect(self.success_url)
 
 
@@ -84,7 +88,11 @@ class ResendCodeView(View):
         request.session['pending_code'] = new_code
 
         # отправляем на email
-        send_verification_email(pending['email'], new_code)
+        send_verification_email(
+            pending['email'],
+            pending['username'],
+            new_code
+        )
         messages.success(request, 'Новый код отправлен на ваш email')
 
         return redirect('users:verify')
