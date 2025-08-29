@@ -9,19 +9,13 @@ def send_verification_email(user, code):
         try:
             subject = 'Подтверждение регистрации в Workout Tracker'
 
-            # Текстовый вариант
-            text_content = f'''
-            Здравствуйте, {user.username}!
+            text_content = (
+                f"Здравствуйте, {user.username}!\n\n"
+                f"Ваш код подтверждения: {code}\n\n"
+                f"Введите его на сайте для завершения регистрации.\n\n"
+                f"С уважением,\nКоманда Workout Tracker"
+            )
 
-            Ваш код подтверждения: {code}
-
-            Введите его на сайте для завершения регистрации.
-
-            С уважением,
-            Команда Workout Tracker
-            '''
-
-            # HTML вариант
             html_content = render_to_string('users/verification_email.html', {
                 'user': user,
                 'code': code,
@@ -30,8 +24,8 @@ def send_verification_email(user, code):
             email = EmailMultiAlternatives(
                 subject,
                 text_content,
-                settings.DEFAULT_FROM_EMAIL,
-                [user.email]
+                settings.EMAIL_HOST_USER,   # 👈 всегда совпадает с авторизованным SMTP-пользователем
+                [user.email]                 # 👈 сюда письмо реально уходит
             )
             email.attach_alternative(html_content, "text/html")
             email.send()
@@ -41,5 +35,4 @@ def send_verification_email(user, code):
         except Exception as e:
             print(f"[EMAIL][ERROR] Ошибка при отправке на {user.email}: {e}")
 
-    # Запуск отправки в отдельном потоке
     threading.Thread(target=_send_email, daemon=True).start()
