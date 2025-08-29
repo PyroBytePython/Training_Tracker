@@ -151,3 +151,18 @@ SERVER_EMAIL = os.getenv('SERVER_EMAIL')
 LOGIN_REDIRECT_URL = 'tracker:menu'
 LOGOUT_REDIRECT_URL = 'root'
 LOGIN_URL = 'users:login'
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
