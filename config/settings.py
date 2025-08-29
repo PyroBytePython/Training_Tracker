@@ -116,7 +116,7 @@ LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
-USE_L18N = True
+USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
@@ -139,7 +139,7 @@ AUTH_USER_MODEL = 'users.User'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL')
+EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
@@ -148,6 +148,6 @@ EMAIL_TIMEOUT = 5
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 SERVER_EMAIL = os.getenv('SERVER_EMAIL')
 
-LOGIN_REDIRECT_URL = 'Tracker:menu'
+LOGIN_REDIRECT_URL = 'tracker:menu'
 LOGOUT_REDIRECT_URL = 'root'
 LOGIN_URL = 'users:login'
