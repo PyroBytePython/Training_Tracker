@@ -3,83 +3,83 @@
 
 {% block content %}
 <style>
-.profile-card {
-    max-width: 640px;
-    margin: 0 auto;
-    background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 8px 30px rgba(0,0,0,.08);
-    padding: 2rem;
-    text-align: center;
-}
-.profile-card .avatar-wrap {
-    display: inline-block;
-    position: relative;
-}
-.profile-card .avatar-img {
-    width: 160px;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 4px solid #fff;
-    box-shadow: 0 6px 16px rgba(0,0,0,.12);
-}
-.profile-card .bio {
-    color: #555;
-    margin-top: 1rem;
-    font-size: 1.05rem;
-}
-.btn-back {
-    margin-top: 1rem;
-}
+    .profile-card {
+        max-width: 640px;
+        margin: 0 auto;
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.08);
+        padding: 2rem;
+        text-align: center;
+    }
+    .profile-card .avatar-wrap {
+        display: inline-block;
+        position: relative;
+    }
+    .profile-card .avatar-img {
+        width: 160px;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 6px 16px rgba(0,0,0,.12);
+    }
+    .profile-card .bio {
+        color: #555;
+        margin-top: 1rem;
+        font-size: 1.05rem;
+    }
+    .btn-back {
+        margin-top: 1rem;
+    }
 
-/* Карточки статистики */
-.stats-container {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-.stat-card {
-    flex: 1;
-    background: #f8f9fa;
-    border-radius: 15px;
-    padding: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease;
-}
-.stat-card:hover {
-    transform: translateY(-4px);
-}
-.stat-number {
-    font-size: 1.8rem;
-    font-weight: bold;
-    color: #28a745;
-}
-.stat-label {
-    font-size: 0.9rem;
-    color: #666;
-}
+    /* Карточки статистики */
+    .stats-container {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    .stat-card {
+        flex: 1;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease;
+    }
+    .stat-card:hover {
+        transform: translateY(-4px);
+    }
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #28a745;
+    }
+    .stat-label {
+        font-size: 0.9rem;
+        color: #666;
+    }
 
-/* Диаграмма */
-.chart-container {
-    margin-top: 2rem;
-    background: #fff;
-    border-radius: 15px;
-    padding: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-}
+    /* Диаграмма */
+    .chart-container {
+        margin-top: 2rem;
+        background: #fff;
+        border-radius: 15px;
+        padding: 1rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
 
-    .muscle-list .list-group-item {
-    border: none;
-    border-radius: 12px;
-    margin-bottom: 6px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-}
-.muscle-list .badge {
-    font-size: 0.9rem;
-    padding: 0.5em 0.8em;
-}
+        .muscle-list .list-group-item {
+        border: none;
+        border-radius: 12px;
+        margin-bottom: 6px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .muscle-list .badge {
+        font-size: 0.9rem;
+        padding: 0.5em 0.8em;
+    }
 </style>
 
 <div class="profile-card">
@@ -109,29 +109,40 @@
     </div>
 
     <!-- Диаграмма -->
-    <div class="chart-container">
-        <canvas id="muscleChart" height="200"></canvas>
-    </div>
-</div>
 
-<!-- Список групп мышц -->
-<div class="muscle-list mt-3">
-    {% if muscle_data %}
+    <div class="chart-container">
+        {% if muscle_data %}
+        <canvas id="muscleChart" height="200"></canvas>
+        {% else %}
+        <div class="text-center p-4">
+            <img src="{% static 'icons/no-data.png' %}"
+                 alt="Нет данных"
+                 style="max-width: 180px; opacity: 0.6;">
+            <p class="text-muted mt-2">Здесь появится статистика по тренировкам</p>
+        </div>
+        {% endif %}
+    </div>
+
+        <!-- Список групп мышц -->
+    <div class="muscle-list mt-3">
+        {% if muscle_data %}
         <ul class="list-group">
             {% for label, percentage in muscle_data %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    {{ label }}
-                    <span class="badge bg-primary rounded-pill">{{ percentage }}%</span>
-                </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ label }}
+                <span class="badge bg-primary rounded-pill">{{ percentage }}%</span>
+            </li>
             {% endfor %}
         </ul>
-    {% else %}
+        {% else %}
         <p class="text-muted text-center mt-2">Нет данных по упражнениям</p>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 
 <!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% if muscle_data %}
 <script>
     const ctx = document.getElementById('muscleChart').getContext('2d');
 
@@ -166,4 +177,5 @@
         }
     });
 </script>
+{% endif %}
 {% endblock %}
