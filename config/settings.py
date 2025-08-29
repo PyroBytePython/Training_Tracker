@@ -166,3 +166,15 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+# Доверие к HTTPS-прокси (nginx передаёт X-Forwarded-Proto)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Куки только по HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Доверенные домены для CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://gorillapulse.ru",
+]
