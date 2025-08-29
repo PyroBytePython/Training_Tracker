@@ -45,8 +45,15 @@ class VerificationCode(models.Model):
 
     @classmethod
     def generate_code(cls, user):
-        code = str(random.randint(100000, 999999))
+        """Генерирует код и сохраняет в БД"""
+        code = cls.generate_raw_code()
         return cls.objects.create(user=user, code=code)
+
+    @staticmethod
+    def generate_raw_code():
+        """Генерирует код, но не сохраняет"""
+        import random
+        return str(random.randint(100000, 999999))
 
 
 class UserProfile(models.Model):

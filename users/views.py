@@ -20,49 +20,54 @@ class RegisterCreateView(CreateView):
     success_url = reverse_lazy('users:verify')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
-        user = form.save()
-        code_obj = VerificationCode.generate_code(user)
-        send_verification_email(user, code_obj.code)
-        self.request.session['verify_user_id'] = user.id
-        return response
+        # сохраняем данные во временную сессию
+        self.request.session['pending_user'] = {
+            'username': form.cleaned_data['username'],
+            'email': form.cleaned_data['email'],
+            'password': form.cleaned_data['password1'],
+        }
+
+        # создаем код (без user, только raw)
+        code = VerificationCode.generate_raw_code()
+        self.request.session['pending_code'] = code
+
+        # отправляем письмо
+        send_verification_email(form.cleaned_data['email'], code)
+        return redirect(self.success_url)
 
 
 class VerifyView(View):
     template_name = 'users/verify.html'
 
     def get(self, request):
-        if not request.session.get('verify_user_id'):
+        if not request.session.get('pending_user'):
             return redirect('users:register')
         return render(request, self.template_name)
 
     def post(self, request):
-        user_id = request.session.get('verify_user_id')
+        pending = request.session.get('pending_user')
         code = request.POST.get('code')
 
-        if not user_id or not code:
+        if not pending or not code:
             return redirect('users:register')
 
-        try:
-            user = User.objects.get(id=user_id)
-            code_obj = VerificationCode.objects.filter(
-                user=user,
-                code=code,
-                is_used=False
-            ).latest('created_at')
+        # сверяем с сохранённым кодом
+        if code == request.session.get('pending_code'):
+            user = User.objects.create_user(
+                username=pending['username'],
+                email=pending['email'],
+                password=pending['password']
+            )
+            user.is_verified = True
+            user.save()
 
-            if code_obj:
-                user.is_verified = True
-                user.save()
-                code_obj.is_used = True
-                code_obj.save()
-                del request.session['verify_user_id']
-                login(request, user)
-                messages.success(request, 'Email успешно подтвержден!')
-                return redirect('tracker:menu')
+            # очищаем сессию
+            request.session.pop('pending_user', None)
+            request.session.pop('pending_code', None)
 
-        except (User.DoesNotExist, VerificationCode.DoesNotExist):
-            pass
+            login(request, user)
+            messages.success(request, 'Email успешно подтвержден!')
+            return redirect('tracker:menu')
 
         messages.error(request, 'Неверный код подтверждения')
         return render(request, self.template_name)
@@ -70,18 +75,17 @@ class VerifyView(View):
 
 class ResendCodeView(View):
     def get(self, request):
-        user_id = request.session.get('verify_user_id')
-        if not user_id:
+        pending = request.session.get('pending_user')
+        if not pending:
             return redirect('users:register')
 
-        try:
-            user = User.objects.get(id=user_id)
-            VerificationCode.objects.filter(user=user).update(is_used=True)
-            code_obj = VerificationCode.generate_code(user)
-            send_verification_email(user, code_obj.code)
-            messages.success(request, 'Новый код отправлен на ваш email')
-        except User.DoesNotExist:
-            pass
+        # обновляем код
+        new_code = VerificationCode.generate_raw_code()
+        request.session['pending_code'] = new_code
+
+        # отправляем на email
+        send_verification_email(pending['email'], new_code)
+        messages.success(request, 'Новый код отправлен на ваш email')
 
         return redirect('users:verify')
 
