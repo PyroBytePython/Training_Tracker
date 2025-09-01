@@ -286,7 +286,7 @@ class UpcomingWorkoutsJsonView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         events = (
             WorkoutEvent.objects
-            .filter(user=request.user, start__gte=now())
+            .filter(user=request.user, start__gte=now().date())
             .order_by("start")[:5]
         )
         data = [
