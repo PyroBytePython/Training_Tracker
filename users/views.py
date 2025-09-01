@@ -19,6 +19,15 @@ class RegisterCreateView(CreateView):
     form_class = UserRegisterForm
     success_url = reverse_lazy('users:verify')
 
+    def get_initial(self):
+        """Заполняем форму старыми данными из сессии, если они есть"""
+        initial = super().get_initial()
+        pending = self.request.session.get("pending_user")
+        if pending:
+            initial["username"] = pending.get("username", "")
+            initial["email"] = pending.get("email", "")
+        return initial
+
     def form_valid(self, form):
         # сохраняем данные во временную сессию
         self.request.session['pending_user'] = {
@@ -44,9 +53,10 @@ class VerifyView(View):
     template_name = 'users/verify.html'
 
     def get(self, request):
-        if not request.session.get('pending_user'):
+        pending = request.session.get('pending_user')
+        if not pending:
             return redirect('users:register')
-        return render(request, self.template_name)
+        return render(request, self.template_name, {"email": pending["email"]})
 
     def post(self, request):
         pending = request.session.get('pending_user')
@@ -74,7 +84,7 @@ class VerifyView(View):
             return redirect('tracker:menu')
 
         messages.error(request, 'Неверный код подтверждения')
-        return render(request, self.template_name)
+        return render(request, self.template_name, {"email": pending["email"]})
 
 
 class ResendCodeView(View):

@@ -75,7 +75,11 @@ class WorkoutEventForm(forms.ModelForm):
         widget=forms.HiddenInput(),
         required=True
     )
-    time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), required=True)
+    time = forms.TimeField(
+        widget=forms.TimeInput(attrs={'type': 'time'}),
+        required=True,
+        label="Изменить время тренировки"
+    )
 
     class Meta:
         model = WorkoutEvent
@@ -83,6 +87,10 @@ class WorkoutEventForm(forms.ModelForm):
         widgets = {
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "note": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+        labels = {
+            "title": "Название тренировки",
+            "note": "Изменить заметку тренировки",
         }
 
     def __init__(self, *args, **kwargs):
