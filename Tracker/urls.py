@@ -7,7 +7,8 @@ from .views import (
     WorkoutDeleteView,
     ExerciseCreateView,
     SetCreateView, ExerciseListView, ExerciseUpdateView, ExerciseDeleteView, ExerciseSetsView, SetDeleteView,
-    SetUpdateView
+    SetUpdateView, CalendarView, WorkoutEventsJsonView, WorkoutEventCreateView, WorkoutEventUpdateView,
+    WorkoutEventDeleteView, UpcomingWorkoutsJsonView, WorkoutEventStatusUpdateView
 )
 
 app_name = 'tracker'
@@ -32,4 +33,13 @@ urlpatterns = [
     path('exercise/<int:pk>/sets/', ExerciseSetsView.as_view(), name='exercise_sets'),
     path('sets/<int:set_id>/delete/', SetDeleteView.as_view(), name='set_delete'),
     path('sets/<int:set_id>/edit/', SetUpdateView.as_view(), name='set_edit'),
+
+    # Events routes
+    path("calendar/", CalendarView.as_view(), name="calendar"),
+    path("calendar/events/", WorkoutEventsJsonView.as_view(), name="calendar-events"),
+    path("calendar/upcoming/", UpcomingWorkoutsJsonView.as_view(), name="calendar-upcoming"),
+    path("calendar/add/", WorkoutEventCreateView.as_view(), name="calendar-add"),
+    path("calendar/<int:pk>/edit/", WorkoutEventUpdateView.as_view(), name="calendar-edit"),
+    path("calendar/<int:pk>/delete/", WorkoutEventDeleteView.as_view(), name="calendar-delete"),
+    path("calendar/<int:pk>/status/", WorkoutEventStatusUpdateView.as_view(), name="calendar-status", )
 ]

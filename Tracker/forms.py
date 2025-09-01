@@ -3,7 +3,7 @@ from django.forms import ModelForm
 from django.utils import timezone
 from django import forms
 
-from Tracker.models import Workout, Exercise, Set
+from Tracker.models import Workout, Exercise, Set, WorkoutEvent
 
 
 class WorkoutForm(ModelForm):
@@ -68,3 +68,37 @@ class SetForm(ModelForm):
         if reps < 1:
             raise forms.ValidationError('Минимум 1 повторение')
         return reps
+
+
+class WorkoutEventForm(forms.ModelForm):
+    date = forms.DateField(
+        widget=forms.HiddenInput(),
+        required=True
+    )
+    time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}), required=True)
+
+    class Meta:
+        model = WorkoutEvent
+        fields = ["title", "note"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "note": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if self.instance and self.instance.pk:
+            self.fields["date"].initial = self.instance.start.date()
+            self.fields["time"].initial = self.instance.start.time()
+
+    def save(self, commit=True):
+        obj = super().save(commit=False)
+        date = self.cleaned_data.get("date")
+        time = self.cleaned_data.get("time")
+        if date and time:
+            from datetime import datetime
+            obj.start = datetime.combine(date, time)
+        if commit:
+            obj.save()
+        return obj

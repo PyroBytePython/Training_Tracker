@@ -1,0 +1,255 @@
+{% extends "tracker/base.html" %}
+{% load static %}
+
+{% block title %}Календарь тренировок{% endblock %}
+
+{% block content %}
+<section class="workout-calendar container py-5">
+  <!-- Заголовок -->
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <h1 class="fw-bold page-title">Календарь тренировок</h1>
+    <a href="{% url 'tracker:menu' %}" class="btn btn-light border rounded-pill shadow-sm">
+      <i class="bi bi-arrow-left"></i> Назад
+    </a>
+  </div>
+
+  <!-- Календарь -->
+  <div class="calendar-box p-4 mb-5 rounded-4 shadow-lg bg-white">
+    <div id="calendar"></div>
+  </div>
+
+  <!-- Подсказка -->
+  <div class="legend mb-5 d-flex flex-wrap gap-4 p-3 rounded-4 shadow-sm bg-white">
+    <span class="legend-item">
+      <span class="dot" style="background:#ff6f61;"></span> Запланирована
+    </span>
+    <span class="legend-item">
+      <span class="dot" style="background:#28a745;"></span> Прошла успешно
+    </span>
+    <span class="legend-item">
+      <span class="dot" style="background:#6c757d;"></span> Отменилась
+    </span>
+  </div>
+
+  <!-- Список тренировок -->
+  <div class="workout-list p-4 rounded-4 shadow-lg bg-white">
+    <h2 class="fw-bold h5 mb-4 d-flex align-items-center">
+      <i class="bi bi-list-task me-2"></i> Мои тренировки
+    </h2>
+    <div id="workout-list">
+      <p class="text-muted">Загрузка...</p>
+    </div>
+  </div>
+</section>
+
+<!-- Модалка -->
+<div class="modal fade" id="statusModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-lg border-0">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold">Изменить статус тренировки</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p id="eventTitle" class="fw-semibold mb-3"></p>
+        <div class="d-flex flex-column gap-2">
+          <button class="btn btn-outline-danger w-100" onclick="updateStatus('default')">Запланирована</button>
+          <button class="btn btn-outline-success w-100" onclick="updateStatus('success')">Прошла успешно</button>
+          <button class="btn btn-outline-secondary w-100" onclick="updateStatus('cancelled')">Отменилась</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FullCalendar -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<style>
+/* ===== Общий стиль ===== */
+body { background: #eef2f7; font-family: "Inter", sans-serif; }
+.page-title { font-size: 1.8rem; color: #111; }
+
+/* ===== Легенда ===== */
+.legend { font-size: 0.95rem; }
+.legend-item { display: flex; align-items: center; gap: 0.4rem; font-weight: 500; color: #444; }
+.legend .dot {
+  width: 14px; height: 14px;
+  border-radius: 50%; display: inline-block;
+  box-shadow: 0 0 4px rgba(0,0,0,0.2);
+}
+
+/* ===== Календарь ===== */
+.fc .fc-toolbar { flex-wrap: wrap; gap: 0.5rem; }
+.fc .fc-toolbar-title { font-size: 1.3rem; font-weight: 700; color: #222; }
+.fc .fc-button {
+  border-radius: 0.75rem !important;
+  padding: 0.4rem 1rem !important;
+  font-size: 0.85rem;
+  background: #fff !important;
+  border: 1px solid #ddd !important;
+  color: #333 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
+}
+.fc .fc-button:hover { background: #f5f5f5 !important; }
+.fc .fc-col-header-cell-cushion {
+  font-size: 0.8rem; font-weight: 600;
+  text-transform: uppercase; color: #666 !important;
+}
+.fc .fc-daygrid-day-number {
+  font-size: 0.85rem; font-weight: 600; color: #444;
+}
+
+/* События */
+.fc .fc-event {
+  border: none;
+  border-radius: 8px;
+  padding: 3px 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.fc-event-default { background:#ff6f61 !important; color:#fff !important; }
+.fc-event-success { background:#28a745 !important; color:#fff !important; }
+.fc-event-cancelled { background:#6c757d !important; color:#fff !important; }
+
+/* ===== Список тренировок ===== */
+.workout-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid #f0f0f0;
+  background: #fafafa;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.workout-card:hover { background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.workout-card .fw-bold { font-size: 1rem; color:#222; }
+.workout-card .text-muted { font-size: 0.85rem; }
+.workout-actions { display: flex; gap: 1rem; }
+.workout-actions a { font-size: 1.2rem; color: #777; transition: all 0.2s; }
+.workout-actions a:hover { color: #000; transform: scale(1.1); }
+
+/* ===== Мобильная адаптация ===== */
+@media (max-width: 768px) {
+  .fc .fc-toolbar { flex-direction: column; align-items: flex-start; }
+  .fc .fc-toolbar-title { font-size: 1.1rem; }
+  .fc .fc-event { font-size: 0.75rem; padding: 2px 4px; }
+  .workout-card { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+  .workout-actions { align-self: flex-end; }
+}
+</style>
+
+<script>
+let currentEventId = null;
+
+document.addEventListener("DOMContentLoaded", function() {
+  const calendarEl = document.getElementById("calendar");
+  const workoutList = document.getElementById("workout-list");
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    locale: "ru",
+    height: "auto",
+    events: function(fetchInfo, successCallback, failureCallback) {
+      fetch(`/tracker/calendar/events/?start=${fetchInfo.startStr}&end=${fetchInfo.endStr}`)
+        .then(res => res.json())
+        .then(data => successCallback(data))
+        .catch(err => failureCallback(err));
+    },
+    headerToolbar: {
+      left: "prev,next today",
+      center: "title",
+      right: ""
+    },
+    dateClick: function(info) {
+      window.location.href = "{% url 'tracker:calendar-add' %}?date=" + info.dateStr;
+    },
+    eventClick: function(info) {
+      currentEventId = info.event.id;
+      document.getElementById("eventTitle").textContent = info.event.title;
+      new bootstrap.Modal(document.getElementById("statusModal")).show();
+    },
+    eventClassNames: function(arg) {
+      const status = arg.event.extendedProps.status || "default";
+      return "fc-event-" + status;
+    },
+    eventContent: function(arg) {
+      if (arg.event.start) {
+        const date = new Date(arg.event.start);
+        const hours = String(date.getHours()).padStart(2, "0");
+        const minutes = String(date.getMinutes()).padStart(2, "0");
+        return { html: `<div>${hours}:${minutes}</div>` };
+      }
+      return { html: "" };
+    }
+  });
+
+  calendar.render();
+
+  function loadUpcoming() {
+    fetch("/tracker/calendar/upcoming/")
+      .then(res => res.json())
+      .then(events => {
+        workoutList.innerHTML = "";
+        if (events.length === 0) {
+          workoutList.innerHTML = '<p class="text-muted">Нет предстоящих тренировок</p>';
+          return;
+        }
+        const list = document.createElement("div");
+        list.className = "d-flex flex-column gap-3";
+        events.forEach(e => {
+          const date = new Date(e.start);
+          const formatted = date.toLocaleDateString("ru-RU", {
+            day: "numeric", month: "long", year: "numeric",
+            hour: "2-digit", minute: "2-digit"
+          });
+          const card = document.createElement("div");
+          card.className = "workout-card";
+          card.innerHTML = `
+            <div>
+              <div class="fw-bold">${e.title}</div>
+              <div class="text-muted">${formatted}</div>
+            </div>
+            <div class="workout-actions">
+              <a href="/tracker/calendar/${e.id}/edit/" title="Редактировать">
+                <i class="bi bi-pencil-square"></i>
+              </a>
+              <a href="/tracker/calendar/${e.id}/delete/" title="Удалить">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          `;
+          list.appendChild(card);
+        });
+        workoutList.appendChild(list);
+      });
+  }
+  loadUpcoming();
+
+  window.updateStatus = function(status) {
+    if (!currentEventId) return;
+    fetch(`/tracker/calendar/${currentEventId}/status/`, {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": "{{ csrf_token }}",
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status: status })
+    }).then(res => {
+      if (res.ok) {
+        calendar.refetchEvents();
+        loadUpcoming();
+        bootstrap.Modal.getInstance(document.getElementById("statusModal")).hide();
+      }
+    });
+  };
+});
+</script>
+{% endblock %}

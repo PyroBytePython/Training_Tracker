@@ -1,12 +1,19 @@
+import json
+
+from django.http import JsonResponse
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy, reverse
+from django.utils.timezone import make_aware, now
+from django.views import View
 from django.views.generic import (
     CreateView, ListView, UpdateView, DeleteView, TemplateView
 )
+from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from datetime import datetime
 
-from Tracker.forms import WorkoutForm, ExerciseForm, SetForm
-from Tracker.models import Workout, Exercise, Set
+from Tracker.forms import WorkoutForm, ExerciseForm, SetForm, WorkoutEventForm
+from Tracker.models import Workout, Exercise, Set, WorkoutEvent
 
 
 class HomeView(TemplateView):
@@ -203,3 +210,116 @@ class SetUpdateView(LoginRequiredMixin, UpdateView):
 class MenuView(LoginRequiredMixin, TemplateView):
     """Меню с кнопками"""
     template_name = "tracker/menu.html"
+
+
+class WorkoutEventsJsonView(LoginRequiredMixin, View):
+    """Отдаём тренировки пользователя в формате JSON для FullCalendar (только в нужном диапазоне)"""
+
+    def get(self, request, *args, **kwargs):
+        start = request.GET.get("start")
+        end = request.GET.get("end")
+
+        qs = WorkoutEvent.objects.filter(user=request.user)
+        if start and end:
+            # FullCalendar отдаёт ISO-строки → приводим к datetime
+            try:
+                start_dt = make_aware(datetime.fromisoformat(start))
+                end_dt = make_aware(datetime.fromisoformat(end))
+                qs = qs.filter(start__range=[start_dt, end_dt])
+            except Exception:
+                pass
+
+        data = [
+            {
+                "id": event.id,
+                "title": event.title,
+                "start": event.start.isoformat(),
+                "status": event.status,
+            }
+            for event in qs
+        ]
+        return JsonResponse(data, safe=False)
+
+
+class CalendarView(LoginRequiredMixin, TemplateView):
+    """Страница с календарём"""
+    template_name = "tracker/calendar.html"
+
+
+class WorkoutEventCreateView(LoginRequiredMixin, CreateView):
+    """Создание тренировки"""
+    model = WorkoutEvent
+    form_class = WorkoutEventForm
+    template_name = "tracker/event_form.html"
+    success_url = reverse_lazy("tracker:calendar")
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+
+class WorkoutEventUpdateView(LoginRequiredMixin, UpdateView):
+    """Редактирование тренировки"""
+    model = WorkoutEvent
+    form_class = WorkoutEventForm
+    template_name = "tracker/event_update.html"
+
+    def get_queryset(self):
+        return WorkoutEvent.objects.filter(user=self.request.user)
+
+    def get_success_url(self):
+        return reverse("tracker:calendar")
+
+
+class WorkoutEventDeleteView(LoginRequiredMixin, DeleteView):
+    """Удаление тренировки"""
+    model = WorkoutEvent
+    template_name = "tracker/event_confirm_delete.html"
+    success_url = reverse_lazy("tracker:calendar")
+
+    def get_queryset(self):
+        return WorkoutEvent.objects.filter(user=self.request.user)
+
+
+class UpcomingWorkoutsJsonView(LoginRequiredMixin, View):
+    """Отдаём только будущие тренировки"""
+
+    def get(self, request, *args, **kwargs):
+        events = (
+            WorkoutEvent.objects
+            .filter(user=request.user, start__gte=now())
+            .order_by("start")[:5]
+        )
+        data = [
+            {
+                "id": e.id,
+                "title": e.title,
+                "start": e.start.isoformat(),
+                "status": e.status,
+            }
+            for e in events
+        ]
+        return JsonResponse(data, safe=False)
+
+
+class WorkoutEventStatusUpdateView(LoginRequiredMixin, View):
+    """Смена статуса тренировки (AJAX)"""
+
+    def post(self, request, pk, *args, **kwargs):
+        try:
+            event = WorkoutEvent.objects.get(pk=pk, user=request.user)
+        except WorkoutEvent.DoesNotExist:
+            return JsonResponse({"error": "not found"}, status=404)
+
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+        except Exception:
+            return JsonResponse({"error": "invalid json"}, status=400)
+
+        status = data.get("status")
+        if status not in dict(WorkoutEvent.STATUS_CHOICES):
+            return JsonResponse({"error": "invalid status"}, status=400)
+
+        event.status = status
+        event.save(update_fields=["status"])
+        return JsonResponse({"success": True, "status": event.status})

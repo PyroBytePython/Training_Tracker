@@ -129,3 +129,37 @@ class Set(models.Model):
 
     def __str__(self):
         return f"{self.weight} кг × {self.reps} повт."
+
+
+class WorkoutEvent(models.Model):
+    STATUS_CHOICES = [
+        ("default", "Запланирована"),
+        ("success", "Прошла успешно"),
+        ("cancelled", "Отменилась"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="workout_events"
+    )
+    title = models.CharField(
+        verbose_name='Название тренировки',
+        max_length=200
+    )
+    start = models.DateTimeField(
+        verbose_name='Полная дата + время начала',
+        db_index=True
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="default")
+    note = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+    class Meta:
+        verbose_name = "Календарь"
+
+
+    def __str__(self):
+        return f"{self.user.username} — {self.title} ({self.start})"
