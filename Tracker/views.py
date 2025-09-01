@@ -8,7 +8,6 @@ from django.views import View
 from django.views.generic import (
     CreateView, ListView, UpdateView, DeleteView, TemplateView
 )
-from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from datetime import datetime
 
