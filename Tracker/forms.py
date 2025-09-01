@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.exceptions import ValidationError
 from django.forms import ModelForm
 from django.utils import timezone
@@ -97,16 +99,19 @@ class WorkoutEventForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
-            self.fields["date"].initial = self.instance.start.date()
-            self.fields["time"].initial = self.instance.start.time()
+            # переводим в локальную таймзону
+            local_start = timezone.localtime(self.instance.start)
+            self.fields["date"].initial = local_start.date()
+            self.fields["time"].initial = local_start.time().replace(microsecond=0)
 
     def save(self, commit=True):
         obj = super().save(commit=False)
         date = self.cleaned_data.get("date")
         time = self.cleaned_data.get("time")
         if date and time:
-            from datetime import datetime
-            obj.start = datetime.combine(date, time)
+            naive_dt = datetime.combine(date, time)
+            # сохраняем в aware datetime (в базе будет UTC, но ты видишь локальное время)
+            obj.start = timezone.make_aware(naive_dt, timezone.get_current_timezone())
         if commit:
             obj.save()
         return obj
